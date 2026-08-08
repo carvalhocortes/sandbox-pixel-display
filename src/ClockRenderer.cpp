@@ -78,6 +78,14 @@ void ClockRenderer::renderRtcError() {
   matrix.show();
 }
 
+void ClockRenderer::renderRtcOk() {
+  logger.rtcOk();
+  matrix.clear();
+  drawNumberLine("RTC", 2);
+  drawNumberLine("OK", 10);
+  matrix.show();
+}
+
 void ClockRenderer::drawNumberLine(const char* text, int y) {
   const int length = strlen(text);
   const int startX = 16 - (length * 3 + length - 1) + 1;

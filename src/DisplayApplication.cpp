@@ -23,6 +23,8 @@ void DisplayApplication::begin() {
   } else {
     rtc.synchronizeToBuildTime();
     Serial.println("RTC sincronizado com o horario do computador");
+    clock.renderRtcOk();
+    delay(3000);
   }
 
   ota.begin(DisplayConfig::OtaHostname);

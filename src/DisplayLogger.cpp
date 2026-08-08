@@ -16,6 +16,11 @@ void DisplayLogger::date(const DateTime &value) const
   Serial.printf("[DATE] %02d/%02d/%04d\n", value.day(), value.month(), value.year());
 }
 
+void DisplayLogger::rtcOk() const
+{
+  Serial.println("[RTC] OK");
+}
+
 void DisplayLogger::rtcError() const
 {
   Serial.println("[RTC] NOK");
