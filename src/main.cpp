@@ -49,19 +49,6 @@ const uint8_t glyphs[10][5] = {
   {0b111, 0b101, 0b111, 0b001, 0b111}
 };
 
-const uint8_t compactGlyphs[10][5] = {
-  {0b11, 0b11, 0b11, 0b11, 0b11},
-  {0b01, 0b11, 0b01, 0b01, 0b11},
-  {0b11, 0b01, 0b11, 0b10, 0b11},
-  {0b11, 0b01, 0b11, 0b01, 0b11},
-  {0b10, 0b10, 0b11, 0b01, 0b01},
-  {0b11, 0b10, 0b11, 0b01, 0b11},
-  {0b11, 0b10, 0b11, 0b11, 0b11},
-  {0b11, 0b01, 0b01, 0b01, 0b01},
-  {0b11, 0b11, 0b11, 0b11, 0b11},
-  {0b11, 0b11, 0b11, 0b01, 0b11}
-};
-
 void turnOffDisplay();
 int ledPosition(int x, int y);
 
@@ -83,84 +70,37 @@ void drawClockChar(char value, int x, int y) {
   }
 }
 
-void drawCompactChar(char value, int x, int y) {
-  for (int row = 0; row < 5; row++) {
-    uint8_t bits = 0;
-    if (value >= '0' && value <= '9') {
-      bits = compactGlyphs[value - '0'][row];
-    } else if (value == '/') {
-      bits = row == 1 || row == 3 ? 0b01 : 0b10;
-    }
-
-    for (int column = 0; column < 2; column++) {
-      pixel[ledPosition(x + column, y + row)] =
-          (bits & (1 << (1 - column))) ? CRGB(180, 180, 180) : CRGB::Black;
-    }
-  }
-}
-
-void drawTwoLineNumber(int top, int bottom) {
-  turnOffDisplay();
-
-  char topText[3];
-  char bottomText[3];
-  snprintf(topText, sizeof(topText), "%02d", top);
-  snprintf(bottomText, sizeof(bottomText), "%02d", bottom);
-
-  const int startX = WIDTH - 6 + 1;
-  for (int index = 0; index < 2; index++) {
-    drawClockChar(topText[index], startX + index * 3, 2);
-    drawClockChar(bottomText[index], startX + index * 3, 10);
-  }
-
-  FastLED.show();
-}
-
-void drawNumberLine(int number, int digits, int y) {
-  char text[5];
-  snprintf(text, sizeof(text), digits == 4 ? "%04d" : "%02d", number);
-
-  const int startX = WIDTH - (digits * 3) + 1;
-  for (int index = 0; index < digits; index++) {
-    drawClockChar(text[index], startX + index * 3, y);
-  }
-}
-
-void drawCompactText(const char* text, int y) {
+void drawNumberLine(const char* text, int y) {
   const int length = strlen(text);
-  const int startX = WIDTH - (length * 2 + (length - 1)) + 1;
-
+  const int startX = WIDTH - (length * 3 + length - 1) + 1;
   for (int index = 0; index < length; index++) {
-    drawCompactChar(text[index], startX + index * 3, y);
+    drawClockChar(text[index], startX + index * 4, y);
   }
-}
-
-void drawCompactDayMonth(int day, int month, int y) {
-  char dayText[3];
-  char monthText[3];
-  snprintf(dayText, sizeof(dayText), "%02d", day);
-  snprintf(monthText, sizeof(monthText), "%02d", month);
-
-  // Dois pixels vazios entre o dia e o mes; bloco alinhado a direita.
-  drawCompactChar(dayText[0], 7, y);
-  drawCompactChar(dayText[1], 9, y);
-  drawCompactChar(monthText[0], 13, y);
-  drawCompactChar(monthText[1], 15, y);
 }
 
 void renderTime() {
   DateTime now = rtcClock.now();
-  drawTwoLineNumber(now.hour(), now.minute());
+  char hourText[3];
+  char minuteText[3];
+  snprintf(hourText, sizeof(hourText), "%02d", now.hour());
+  snprintf(minuteText, sizeof(minuteText), "%02d", now.minute());
+
+  turnOffDisplay();
+  drawNumberLine(hourText, 2);
+  drawNumberLine(minuteText, 10);
+  FastLED.show();
 }
 
 void renderDate() {
   DateTime now = rtcClock.now();
+  char dateText[5];
   char yearText[5];
+  snprintf(dateText, sizeof(dateText), "%02d%02d", now.day(), now.month());
   snprintf(yearText, sizeof(yearText), "%04d", now.year());
 
   turnOffDisplay();
-  drawCompactDayMonth(now.day(), now.month(), 3);
-  drawCompactText(yearText, 9);
+  drawNumberLine(dateText, 3);
+  drawNumberLine(yearText, 9);
   FastLED.show();
 }
 
