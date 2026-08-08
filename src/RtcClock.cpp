@@ -3,11 +3,28 @@
 #include <Arduino.h>
 #include <Wire.h>
 
+namespace {
+uint8_t probeAddress(uint8_t address) {
+  Wire.beginTransmission(address);
+  return Wire.endTransmission();
+}
+}
+
 bool RtcClock::begin(uint8_t sdaPin, uint8_t sclPin) {
   available = false;
 
   Wire.begin(sdaPin, sclPin);
-  available = rtc.begin();
+  Wire.setClock(100000);
+  delay(100);
+
+  Serial.printf(
+      "I2C linhas: SDA=%s SCL=%s\n",
+      digitalRead(sdaPin) == HIGH ? "HIGH" : "LOW",
+      digitalRead(sclPin) == HIGH ? "HIGH" : "LOW");
+  Serial.printf("I2C EEPROM 0x50: status=%u\n", probeAddress(0x50));
+  Serial.printf("I2C RTC 0x68: status=%u\n", probeAddress(0x68));
+
+  available = rtc.begin(&Wire);
   Serial.printf("RTC inicializacao: %s\n", available ? "OK" : "NOK");
   return available;
 }
