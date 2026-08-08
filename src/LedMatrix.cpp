@@ -49,18 +49,31 @@ void LedMatrix::drawGifPixel(
 
 void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
   FastLED.setBrightness(brightness);
-  const CRGB colors[] = {
+  const CRGB lineOne[] = {
       CRGB(104, 104, 104), CRGB(180, 180, 180), CRGB(180, 180, 16),
       CRGB(16, 180, 180), CRGB(16, 180, 16), CRGB(180, 16, 180),
       CRGB(180, 16, 16), CRGB(16, 16, 180)};
+  const CRGB lineTwo[] = {
+      CRGB(0, 255, 255), CRGB(16, 70, 103), CRGB(180, 180, 180),
+      CRGB(180, 180, 180), CRGB(180, 180, 180), CRGB(180, 180, 180),
+      CRGB(180, 180, 180), CRGB(0, 0, 255)};
+  const CRGB lineThree[] = {
+      CRGB(255, 255, 0), CRGB(72, 16, 118), CRGB::Black,
+      CRGB(64, 64, 64), CRGB(128, 128, 128), CRGB(192, 192, 192),
+      CRGB(255, 255, 255), CRGB(255, 0, 0)};
+  const CRGB lineFour[] = {
+      CRGB(64, 64, 64), CRGB::Black, CRGB::Black, CRGB(255, 255, 255),
+      CRGB(255, 255, 255), CRGB::Black, CRGB::Black, CRGB::Black};
 
   const int columns = 8;
   const int rows = height / 8;
   for (int y = 1; y <= height; y++) {
+    const int row = (y - 1) / rows;
+    const CRGB* colors = row == 0 ? lineOne : row == 1 ? lineTwo :
+                         row == 2 ? lineThree : lineFour;
     for (int x = 1; x <= width; x++) {
-      const int colorIndex = min(columns - 1, (x - 1) / (width / columns));
-      const int rowBand = min(7, (y - 1) / rows);
-      setPixel(x, y, colors[(colorIndex + rowBand) % columns]);
+      const int column = min(columns - 1, (x - 1) / (width / columns));
+      setPixel(x, y, colors[column]);
     }
   }
 

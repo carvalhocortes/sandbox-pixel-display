@@ -85,8 +85,8 @@ Edite o arquivo local:
 ```ini
 [env:nodemcuv2]
 build_flags =
-    -D WIFI_SSID=\"NomeDaRede\"
-    -D WIFI_PASSWORD=\"SenhaDaRede\"
+    -DWIFI_SSID=\"NomeDaRede\"
+    -DWIFI_PASSWORD=\"SenhaDaRede\"
 ```
 
 `platformio.local.ini` está no `.gitignore` e não deve ser enviado ao GitHub.
@@ -98,8 +98,8 @@ Faça primeiro o upload via USB. Depois que o monitor mostrar o IP do ESP, adici
 ```ini
 [env:nodemcuv2]
 build_flags =
-    -D WIFI_SSID=\"NomeDaRede\"
-    -D WIFI_PASSWORD=\"SenhaDaRede\"
+    -DWIFI_SSID=\"NomeDaRede\"
+    -DWIFI_PASSWORD=\"SenhaDaRede\"
 upload_protocol = espota
 upload_port = 192.168.0.123
 ```

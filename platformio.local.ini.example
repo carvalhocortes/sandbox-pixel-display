@@ -3,8 +3,8 @@
 
 [env:nodemcuv2]
 build_flags =
-    -D WIFI_SSID=\"nome-da-rede\"
-    -D WIFI_PASSWORD=\"senha-da-rede\"
+    -DWIFI_SSID=\"nome-da-rede\"
+    -DWIFI_PASSWORD=\"senha-da-rede\"
 ; Para usar OTA depois do primeiro upload via USB:
 ; upload_protocol = espota
 ; upload_port = pixel-display.local
