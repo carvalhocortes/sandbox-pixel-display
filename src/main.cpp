@@ -33,6 +33,8 @@ enum class DisplayMode { Image, Time, Date };
 DisplayMode displayMode = DisplayMode::Image;
 unsigned long modeStartedAt = 0;
 unsigned long lastClockRenderAt = 0;
+int lastClockTop = -1;
+int lastClockBottom = -1;
 
 const uint8_t glyphs[10][5] = {
   {0b111, 0b101, 0b101, 0b101, 0b111},
@@ -68,29 +70,31 @@ void drawClockChar(char value, int x, int y) {
   }
 }
 
-void drawClockText(const char* text) {
+void drawTwoLineNumber(int top, int bottom) {
   turnOffDisplay();
-  const int length = strlen(text);
-  const int startX = (WIDTH - (length * 3)) / 2 + 1;
-  const int startY = 6;
-  for (int index = 0; index < length; index++) {
-    drawClockChar(text[index], startX + index * 3, startY);
+
+  char topText[3];
+  char bottomText[3];
+  snprintf(topText, sizeof(topText), "%02d", top);
+  snprintf(bottomText, sizeof(bottomText), "%02d", bottom);
+
+  const int startX = 6;
+  for (int index = 0; index < 2; index++) {
+    drawClockChar(topText[index], startX + index * 3, 2);
+    drawClockChar(bottomText[index], startX + index * 3, 10);
   }
+
   FastLED.show();
 }
 
 void renderTime() {
   DateTime now = rtcClock.now();
-  char text[6];
-  snprintf(text, sizeof(text), "%02d:%02d", now.hour(), now.minute());
-  drawClockText(text);
+  drawTwoLineNumber(now.hour(), now.minute());
 }
 
 void renderDate() {
   DateTime now = rtcClock.now();
-  char text[6];
-  snprintf(text, sizeof(text), "%02d/%02d", now.day(), now.month());
-  drawClockText(text);
+  drawTwoLineNumber(now.day(), now.month());
 }
 
 int ledPosition(int x, int y) {
@@ -359,12 +363,16 @@ void loop() {
     displayMode = DisplayMode::Time;
     modeStartedAt = now;
     lastClockRenderAt = 0;
+    lastClockTop = -1;
+    lastClockBottom = -1;
     turnOffDisplay();
   } else if (displayMode == DisplayMode::Time &&
              (now - modeStartedAt) > (CLOCK_TIME_SECONDS * 1000UL)) {
     displayMode = DisplayMode::Date;
     modeStartedAt = now;
     lastClockRenderAt = 0;
+    lastClockTop = -1;
+    lastClockBottom = -1;
   } else if (displayMode == DisplayMode::Date &&
              (now - modeStartedAt) > (CLOCK_DATE_SECONDS * 1000UL)) {
     displayMode = DisplayMode::Image;
@@ -374,12 +382,18 @@ void loop() {
   }
 
   if (displayMode == DisplayMode::Time || displayMode == DisplayMode::Date) {
-    if (lastClockRenderAt == 0 || (now - lastClockRenderAt) >= 1000) {
+    DateTime current = rtcClock.now();
+    const int top = displayMode == DisplayMode::Time ? current.hour() : current.day();
+    const int bottom = displayMode == DisplayMode::Time ? current.minute() : current.month();
+
+    if (top != lastClockTop || bottom != lastClockBottom) {
       if (displayMode == DisplayMode::Time) {
         renderTime();
       } else {
         renderDate();
       }
+      lastClockTop = top;
+      lastClockBottom = bottom;
       lastClockRenderAt = now;
     }
     return;
