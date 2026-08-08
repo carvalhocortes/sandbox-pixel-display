@@ -5,6 +5,11 @@ void DisplayScheduler::begin(unsigned long now) {
   modeStartedAt = now;
 }
 
+void DisplayScheduler::forceImage(unsigned long now) {
+  currentMode = DisplayMode::Image;
+  modeStartedAt = now;
+}
+
 bool DisplayScheduler::update(unsigned long now, unsigned long gifCycles) {
   DisplayMode nextMode = currentMode;
 

@@ -54,6 +54,13 @@ void DisplayApplication::update() {
     return;
   }
 
+  if (!rtc.isAvailable()) {
+    Serial.println("RTC indisponivel; mantendo modo de imagens");
+    scheduler.forceImage(now);
+    gifs.requestNextImage();
+    return;
+  }
+
   const DateTime current = rtc.now();
   const int top = scheduler.mode() == DisplayMode::Time ? current.hour() : current.day();
   const int bottom = scheduler.mode() == DisplayMode::Time ? current.minute() : current.month();

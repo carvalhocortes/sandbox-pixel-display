@@ -9,6 +9,7 @@ enum class DisplayMode { Image, Time, Date };
 class DisplayScheduler {
 public:
   void begin(unsigned long now);
+  void forceImage(unsigned long now);
   bool update(unsigned long now, unsigned long gifCycles);
   DisplayMode mode() const;
 
