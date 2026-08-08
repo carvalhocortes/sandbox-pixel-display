@@ -66,13 +66,18 @@ void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
       CRGB(255, 255, 255), CRGB::Black, CRGB::Black, CRGB::Black};
 
   const int columns = 8;
-  const int rows = height / 8;
+  const int columnWidth = width / columns;
+  const int baseRowHeight = height / 8;
+  const int firstBandEnd = baseRowHeight * 5;
+  const int secondBandEnd = firstBandEnd + baseRowHeight;
+  const int thirdBandEnd = secondBandEnd + baseRowHeight;
+
   for (int y = 1; y <= height; y++) {
-    const int row = (y - 1) / rows;
-    const CRGB* colors = row == 0 ? lineOne : row == 1 ? lineTwo :
-                         row == 2 ? lineThree : lineFour;
+    const CRGB* colors = y <= firstBandEnd ? lineOne :
+                         y <= secondBandEnd ? lineTwo :
+                         y <= thirdBandEnd ? lineThree : lineFour;
     for (int x = 1; x <= width; x++) {
-      const int column = min(columns - 1, (x - 1) / (width / columns));
+      const int column = min(columns - 1, (x - 1) / columnWidth);
       setPixel(x, y, colors[column]);
     }
   }
