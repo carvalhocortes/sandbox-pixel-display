@@ -1,47 +1,51 @@
 #include <Arduino.h>
-#include <RTClib.h>
 #include <Wire.h>
 
-constexpr uint8_t SDA_PIN = D2;
-constexpr uint8_t SCL_PIN = D1;
+constexpr uint8_t D1_PIN = D1;
+constexpr uint8_t D2_PIN = D2;
 
-RTC_DS1307 rtc;
+void scanI2C(uint8_t sdaPin, uint8_t sclPin, const char* description) {
+  Wire.begin(sdaPin, sclPin);
+  delay(100);
+
+  Serial.println();
+  Serial.println(description);
+  Serial.print("SDA=D");
+  Serial.print(sdaPin == D1 ? 1 : 2);
+  Serial.print(" SCL=D");
+  Serial.println(sclPin == D1 ? 1 : 2);
+
+  uint8_t devicesFound = 0;
+
+  for (uint8_t address = 1; address < 127; address++) {
+    Wire.beginTransmission(address);
+
+    if (Wire.endTransmission() == 0) {
+      Serial.print("Dispositivo encontrado em 0x");
+      if (address < 16) {
+        Serial.print('0');
+      }
+      Serial.println(address, HEX);
+      devicesFound++;
+    }
+  }
+
+  if (devicesFound == 0) {
+    Serial.println("Nenhum dispositivo encontrado");
+  }
+}
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
 
   Serial.println();
-  Serial.println("RTC serial test");
+  Serial.println("Scanner I2C");
 
-  Wire.begin(SDA_PIN, SCL_PIN);
-
-  if (!rtc.begin()) {
-    Serial.println("RTC nao encontrado");
-    while (true) {
-      delay(1000);
-    }
-  }
-
-  // Sincroniza o RTC com o horario usado na compilacao deste firmware.
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  scanI2C(D2_PIN, D1_PIN, "Teste 1: ordem normal");
+  scanI2C(D1_PIN, D2_PIN, "Teste 2: ordem invertida");
 }
 
 void loop() {
-  DateTime now = rtc.now();
-
-  char timestamp[24];
-  snprintf(
-      timestamp,
-      sizeof(timestamp),
-      "%02d/%02d/%04d %02d:%02d:%02d",
-      now.day(),
-      now.month(),
-      now.year(),
-      now.hour(),
-      now.minute(),
-      now.second());
-
-  Serial.println(timestamp);
-  delay(1000);
+  delay(5000);
 }
