@@ -5,11 +5,10 @@
 #include <FastLED.h>
 #include <cstring>
 #include "DisplayLogger.h"
+#include "DisplayScheduler.h"
 #include "OtaService.h"
 #include "RtcClock.h"
 
-#define DISPLAY_TIME_SECONDS 10
-#define NUMBER_FULL_CYCLES   100
 #define WIDTH 16
 #define HEIGHT 16
 #define DATA_PIN 2 // Pin D4 do ESP8266
@@ -17,8 +16,6 @@
 #define GIF_DIRECTORY "/gifs"
 #define RTC_SDA D2
 #define RTC_SCL D1
-#define CLOCK_TIME_SECONDS 5
-#define CLOCK_DATE_SECONDS 5
 
 const int NUM_LEDS = WIDTH * HEIGHT;
 float brightness = 50;
@@ -31,9 +28,7 @@ RtcClock rtcClock;
 OtaService otaService;
 DisplayLogger displayLogger;
 
-enum class DisplayMode { Image, Time, Date };
-DisplayMode displayMode = DisplayMode::Image;
-unsigned long modeStartedAt = 0;
+DisplayScheduler displayScheduler;
 unsigned long lastClockRenderAt = 0;
 int lastClockTop = -1;
 int lastClockBottom = -1;
@@ -362,7 +357,7 @@ void setup() {
     while(1);
   }
 
-  modeStartedAt = millis();
+  displayScheduler.begin(millis());
 }
 
 
@@ -379,37 +374,24 @@ void loop() {
 
   otaService.handle();
 
-  if (displayMode == DisplayMode::Image &&
-      ((now - modeStartedAt) > (DISPLAY_TIME_SECONDS * 1000UL) ||
-       decoder.getCycleNumber() > NUMBER_FULL_CYCLES)) {
-    displayMode = DisplayMode::Time;
-    modeStartedAt = now;
+  if (displayScheduler.update(now, decoder.getCycleNumber())) {
     lastClockRenderAt = 0;
     lastClockTop = -1;
     lastClockBottom = -1;
     turnOffDisplay();
-  } else if (displayMode == DisplayMode::Time &&
-             (now - modeStartedAt) > (CLOCK_TIME_SECONDS * 1000UL)) {
-    displayMode = DisplayMode::Date;
-    modeStartedAt = now;
-    lastClockRenderAt = 0;
-    lastClockTop = -1;
-    lastClockBottom = -1;
-  } else if (displayMode == DisplayMode::Date &&
-             (now - modeStartedAt) > (CLOCK_DATE_SECONDS * 1000UL)) {
-    displayMode = DisplayMode::Image;
-    modeStartedAt = now;
-    playNextGif = true;
-    turnOffDisplay();
+    if (displayScheduler.mode() == DisplayMode::Image) {
+      playNextGif = true;
+    }
   }
 
-  if (displayMode == DisplayMode::Time || displayMode == DisplayMode::Date) {
+  if (displayScheduler.mode() == DisplayMode::Time ||
+      displayScheduler.mode() == DisplayMode::Date) {
     DateTime current = rtcClock.now();
-    const int top = displayMode == DisplayMode::Time ? current.hour() : current.day();
-    const int bottom = displayMode == DisplayMode::Time ? current.minute() : current.month();
+    const int top = displayScheduler.mode() == DisplayMode::Time ? current.hour() : current.day();
+    const int bottom = displayScheduler.mode() == DisplayMode::Time ? current.minute() : current.month();
 
     if (top != lastClockTop || bottom != lastClockBottom) {
-      if (displayMode == DisplayMode::Time) {
+      if (displayScheduler.mode() == DisplayMode::Time) {
         renderTime();
       } else {
         renderDate();
@@ -422,7 +404,7 @@ void loop() {
   }
 
 #if 1
-  if((now - displayStartTime_millis) > (DISPLAY_TIME_SECONDS * 1000) || decoder.getCycleNumber() > NUMBER_FULL_CYCLES)
+  if((now - displayStartTime_millis) > 10000UL || decoder.getCycleNumber() > 100UL)
     playNextGif = true;
 #else
   if((now - displayStartTime_millis) > (DISPLAY_TIME_SECONDS * 1000) && decoder.getCycleNumber() > NUMBER_FULL_CYCLES)
