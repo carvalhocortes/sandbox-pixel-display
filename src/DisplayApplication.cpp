@@ -11,21 +11,26 @@ DisplayApplication::DisplayApplication()
 
 void DisplayApplication::begin() {
   Serial.begin(115200);
+  delay(1000);
   Serial.println("Display application starting");
+
+  const bool rtcAvailable = rtc.begin(DisplayConfig::RtcSdaPin, DisplayConfig::RtcSclPin);
+  if (!rtcAvailable) {
+    Serial.println("RTC nao encontrado em 0x68");
+  } else {
+    rtc.synchronizeToBuildTime();
+    Serial.println("RTC sincronizado com o horario do computador");
+  }
 
   matrix.begin(DisplayConfig::Brightness);
   matrix.testColorsBars(5000, 64);
 
-  if (!rtc.begin(DisplayConfig::RtcSdaPin, DisplayConfig::RtcSclPin)) {
-    Serial.println("RTC nao encontrado em 0x68");
-    clock.renderRtcError();
-    delay(3000);
-  } else {
-    rtc.synchronizeToBuildTime();
-    Serial.println("RTC sincronizado com o horario do computador");
+  if (rtcAvailable) {
     clock.renderRtcOk();
-    delay(3000);
+  } else {
+    clock.renderRtcError();
   }
+  delay(3000);
 
   ota.begin(DisplayConfig::OtaHostname);
 
