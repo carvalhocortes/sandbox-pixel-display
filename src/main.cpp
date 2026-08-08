@@ -4,6 +4,7 @@
 #include "FilenameFunctions.h"
 #include <FastLED.h>
 #include <cstring>
+#include "DisplayLogger.h"
 #include "OtaService.h"
 #include "RtcClock.h"
 
@@ -28,6 +29,7 @@ GifDecoder<WIDTH, HEIGHT, 12> decoder;
 int num_files;
 RtcClock rtcClock;
 OtaService otaService;
+DisplayLogger displayLogger;
 
 enum class DisplayMode { Image, Time, Date };
 DisplayMode displayMode = DisplayMode::Image;
@@ -98,6 +100,7 @@ void renderTime() {
   snprintf(hourText, sizeof(hourText), "%02d", now.hour());
   snprintf(minuteText, sizeof(minuteText), "%02d", now.minute());
 
+  displayLogger.time(now);
   turnOffDisplay();
   drawNumberLine(hourText, 2);
   drawNumberLine(minuteText, 10);
@@ -109,6 +112,7 @@ void renderDate() {
   char yearText[5];
   snprintf(yearText, sizeof(yearText), "%04d", now.year());
 
+  displayLogger.date(now);
   turnOffDisplay();
   drawDayMonthLine(now.day(), now.month(), 3);
   drawNumberLine(yearText, 9);

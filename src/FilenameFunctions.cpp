@@ -146,7 +146,7 @@ int openGifFilenameByIndex(const char *directoryName, int index) {
 
     getGIFFilenameByIndex(directoryName, index, pathname);
 
-    Serial.print("Pathname: ");
+    Serial.print("[IMAGE] ");
     Serial.println(pathname);
 
     if(file)
