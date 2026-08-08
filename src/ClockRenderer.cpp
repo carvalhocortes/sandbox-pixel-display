@@ -51,10 +51,10 @@ void ClockRenderer::drawDayMonthLine(int day, int month, int y) {
   snprintf(dayText, sizeof(dayText), "%02d", day);
   snprintf(monthText, sizeof(monthText), "%02d", month);
 
-  drawChar(dayText[0], 2, y);
-  drawChar(dayText[1], 6, y);
-  drawChar(monthText[0], 11, y);
-  drawChar(monthText[1], 15, y);
+  drawChar(dayText[0], 1, y);
+  drawChar(dayText[1], 5, y);
+  drawChar(monthText[0], 10, y);
+  drawChar(monthText[1], 14, y);
 }
 
 void ClockRenderer::renderTime(const DateTime& value) {
