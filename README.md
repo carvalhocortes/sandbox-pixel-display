@@ -22,7 +22,7 @@ Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeM
 | RTC SCL | D1 |
 | Alimentação/GND | VCC/GND comuns |
 
-O RTC foi validado no endereço I²C `0x68`. O endereço `0x50` é a EEPROM presente no módulo RTC.
+O módulo HW-111 usa um RTC DS1307 no endereço I²C `0x68`. O endereço `0x50` é a EEPROM presente no mesmo módulo.
 
 ## Estrutura do código
 
@@ -114,7 +114,7 @@ O firmware usa `__DATE__` e `__TIME__` durante o build. Portanto:
 2. Faça o Build.
 3. Faça o Upload logo em seguida.
 
-O RTC é sincronizado no boot. A biblioteca usada é `RTClib`; o firmware atual utiliza a interface `RTC_DS3231` no endereço `0x68`.
+O RTC é sincronizado no boot. A biblioteca usada é `RTClib`; o firmware utiliza a interface `RTC_DS1307` no endereço `0x68`.
 
 ## Desenvolvimento
 

@@ -10,6 +10,6 @@ public:
   DateTime now();
 
 private:
-  RTC_DS3231 rtc;
+  RTC_DS1307 rtc;
   bool available = false;
 };
