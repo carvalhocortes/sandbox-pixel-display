@@ -18,6 +18,8 @@ void DisplayApplication::begin() {
 
   if (!rtc.begin(DisplayConfig::RtcSdaPin, DisplayConfig::RtcSclPin)) {
     Serial.println("RTC nao encontrado em 0x68");
+    clock.renderRtcError();
+    delay(3000);
   } else {
     rtc.synchronizeToBuildTime();
     Serial.println("RTC sincronizado com o horario do computador");

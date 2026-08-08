@@ -27,6 +27,39 @@ void ClockRenderer::drawChar(char value, int x, int y) {
     uint8_t bits = 0;
     if (value >= '0' && value <= '9') {
       bits = glyphs[value - '0'][row];
+    } else {
+      switch (value) {
+        case 'R': {
+          const uint8_t glyph[5] = {0b110, 0b101, 0b110, 0b101, 0b101};
+          bits = glyph[row];
+          break;
+        }
+        case 'T': {
+          const uint8_t glyph[5] = {0b111, 0b010, 0b010, 0b010, 0b010};
+          bits = glyph[row];
+          break;
+        }
+        case 'C': {
+          const uint8_t glyph[5] = {0b111, 0b100, 0b100, 0b100, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'N': {
+          const uint8_t glyph[5] = {0b101, 0b111, 0b111, 0b111, 0b101};
+          bits = glyph[row];
+          break;
+        }
+        case 'O': {
+          const uint8_t glyph[5] = {0b111, 0b101, 0b101, 0b101, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'K': {
+          const uint8_t glyph[5] = {0b101, 0b110, 0b110, 0b110, 0b101};
+          bits = glyph[row];
+          break;
+        }
+      }
     }
 
     for (int column = 0; column < 3; column++) {
@@ -35,6 +68,14 @@ void ClockRenderer::drawChar(char value, int x, int y) {
           (bits & (1 << (2 - column))) ? CRGB(180, 180, 180) : CRGB::Black);
     }
   }
+}
+
+void ClockRenderer::renderRtcError() {
+  logger.rtcError();
+  matrix.clear();
+  drawNumberLine("RTC", 2);
+  drawNumberLine("NOK", 10);
+  matrix.show();
 }
 
 void ClockRenderer::drawNumberLine(const char* text, int y) {
