@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 
+#include "DisplayConfig.h"
+
 enum class DisplayMode { Image, Time, Date };
 
 class DisplayScheduler {
@@ -11,10 +13,10 @@ public:
   DisplayMode mode() const;
 
 private:
-  static constexpr unsigned long imageDurationMs = 10000UL;
-  static constexpr unsigned long timeDurationMs = 5000UL;
-  static constexpr unsigned long dateDurationMs = 5000UL;
-  static constexpr unsigned long maxGifCycles = 100UL;
+  static constexpr unsigned long imageDurationMs = DisplayConfig::ImageDurationMs;
+  static constexpr unsigned long timeDurationMs = DisplayConfig::TimeDurationMs;
+  static constexpr unsigned long dateDurationMs = DisplayConfig::DateDurationMs;
+  static constexpr unsigned long maxGifCycles = DisplayConfig::MaxGifCycles;
 
   DisplayMode currentMode = DisplayMode::Image;
   unsigned long modeStartedAt = 0;
