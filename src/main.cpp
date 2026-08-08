@@ -78,6 +78,19 @@ void drawNumberLine(const char* text, int y) {
   }
 }
 
+void drawDayMonthLine(int day, int month, int y) {
+  char dayText[3];
+  char monthText[3];
+  snprintf(dayText, sizeof(dayText), "%02d", day);
+  snprintf(monthText, sizeof(monthText), "%02d", month);
+
+  // Um pixel entre os digitos do grupo e dois entre dia e mes.
+  drawClockChar(dayText[0], 2, y);
+  drawClockChar(dayText[1], 6, y);
+  drawClockChar(monthText[0], 11, y);
+  drawClockChar(monthText[1], 15, y);
+}
+
 void renderTime() {
   DateTime now = rtcClock.now();
   char hourText[3];
@@ -93,13 +106,11 @@ void renderTime() {
 
 void renderDate() {
   DateTime now = rtcClock.now();
-  char dateText[5];
   char yearText[5];
-  snprintf(dateText, sizeof(dateText), "%02d%02d", now.day(), now.month());
   snprintf(yearText, sizeof(yearText), "%04d", now.year());
 
   turnOffDisplay();
-  drawNumberLine(dateText, 3);
+  drawDayMonthLine(now.day(), now.month(), 3);
   drawNumberLine(yearText, 9);
   FastLED.show();
 }
