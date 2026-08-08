@@ -1,4 +1,5 @@
 .pio
 .vscode
+platformio.local.ini
 test
 3dPrints/*.gcode

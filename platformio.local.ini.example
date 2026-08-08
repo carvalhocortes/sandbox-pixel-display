@@ -1,0 +1,10 @@
+; Copie este arquivo para platformio.local.ini e preencha os valores.
+; Nunca versione platformio.local.ini.
+
+[env:nodemcuv2]
+build_flags =
+    -D WIFI_SSID=\"nome-da-rede\"
+    -D WIFI_PASSWORD=\"senha-da-rede\"
+; Para usar OTA depois do primeiro upload via USB:
+; upload_protocol = espota
+; upload_port = pixel-display.local
