@@ -78,7 +78,7 @@ void drawTwoLineNumber(int top, int bottom) {
   snprintf(topText, sizeof(topText), "%02d", top);
   snprintf(bottomText, sizeof(bottomText), "%02d", bottom);
 
-  const int startX = 6;
+  const int startX = WIDTH - 6 + 1;
   for (int index = 0; index < 2; index++) {
     drawClockChar(topText[index], startX + index * 3, 2);
     drawClockChar(bottomText[index], startX + index * 3, 10);
