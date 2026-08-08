@@ -33,7 +33,23 @@ bool GifPlayer::begin() {
     return false;
   }
 
+  randomSeed(analogRead(A0) ^ micros());
+
   return true;
+}
+
+int GifPlayer::chooseNextFile() {
+  if (fileCount <= 1) {
+    return 0;
+  }
+
+  int nextIndex;
+  do {
+    nextIndex = random(fileCount);
+  } while (nextIndex == lastFileIndex);
+
+  lastFileIndex = nextIndex;
+  return nextIndex;
 }
 
 void GifPlayer::update(unsigned long now) {
@@ -43,16 +59,12 @@ void GifPlayer::update(unsigned long now) {
 
   if (playNextGif) {
     playNextGif = false;
-    if (openGifFilenameByIndex(directory, fileIndex) >= 0) {
+    if (openGifFilenameByIndex(directory, chooseNextFile()) >= 0) {
       if (decoder.startDecoding() < 0) {
         playNextGif = true;
         return;
       }
       displayStartedAt = now;
-    }
-
-    if (++fileIndex >= fileCount) {
-      fileIndex = 0;
     }
   }
 
