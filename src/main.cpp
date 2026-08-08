@@ -135,6 +135,19 @@ void drawCompactText(const char* text, int y) {
   }
 }
 
+void drawCompactDayMonth(int day, int month, int y) {
+  char dayText[3];
+  char monthText[3];
+  snprintf(dayText, sizeof(dayText), "%02d", day);
+  snprintf(monthText, sizeof(monthText), "%02d", month);
+
+  // Dois pixels vazios entre o dia e o mes; bloco alinhado a direita.
+  drawCompactChar(dayText[0], 7, y);
+  drawCompactChar(dayText[1], 9, y);
+  drawCompactChar(monthText[0], 13, y);
+  drawCompactChar(monthText[1], 15, y);
+}
+
 void renderTime() {
   DateTime now = rtcClock.now();
   drawTwoLineNumber(now.hour(), now.minute());
@@ -142,13 +155,11 @@ void renderTime() {
 
 void renderDate() {
   DateTime now = rtcClock.now();
-  char dateText[6];
   char yearText[5];
-  snprintf(dateText, sizeof(dateText), "%02d/%02d", now.day(), now.month());
   snprintf(yearText, sizeof(yearText), "%04d", now.year());
 
   turnOffDisplay();
-  drawCompactText(dateText, 3);
+  drawCompactDayMonth(now.day(), now.month(), 3);
   drawCompactText(yearText, 9);
   FastLED.show();
 }
