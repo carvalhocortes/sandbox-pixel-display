@@ -49,6 +49,19 @@ const uint8_t glyphs[10][5] = {
   {0b111, 0b101, 0b111, 0b001, 0b111}
 };
 
+const uint8_t compactGlyphs[10][5] = {
+  {0b11, 0b11, 0b11, 0b11, 0b11},
+  {0b01, 0b11, 0b01, 0b01, 0b11},
+  {0b11, 0b01, 0b11, 0b10, 0b11},
+  {0b11, 0b01, 0b11, 0b01, 0b11},
+  {0b10, 0b10, 0b11, 0b01, 0b01},
+  {0b11, 0b10, 0b11, 0b01, 0b11},
+  {0b11, 0b10, 0b11, 0b11, 0b11},
+  {0b11, 0b01, 0b01, 0b01, 0b01},
+  {0b11, 0b11, 0b11, 0b11, 0b11},
+  {0b11, 0b11, 0b11, 0b01, 0b11}
+};
+
 void turnOffDisplay();
 int ledPosition(int x, int y);
 
@@ -66,6 +79,22 @@ void drawClockChar(char value, int x, int y) {
     for (int column = 0; column < 3; column++) {
       pixel[ledPosition(x + column, y + row)] =
           (bits & (1 << (2 - column))) ? CRGB(180, 180, 180) : CRGB::Black;
+    }
+  }
+}
+
+void drawCompactChar(char value, int x, int y) {
+  for (int row = 0; row < 5; row++) {
+    uint8_t bits = 0;
+    if (value >= '0' && value <= '9') {
+      bits = compactGlyphs[value - '0'][row];
+    } else if (value == '/') {
+      bits = row == 1 || row == 3 ? 0b01 : 0b10;
+    }
+
+    for (int column = 0; column < 2; column++) {
+      pixel[ledPosition(x + column, y + row)] =
+          (bits & (1 << (1 - column))) ? CRGB(180, 180, 180) : CRGB::Black;
     }
   }
 }
@@ -97,6 +126,15 @@ void drawNumberLine(int number, int digits, int y) {
   }
 }
 
+void drawCompactText(const char* text, int y) {
+  const int length = strlen(text);
+  const int startX = WIDTH - (length * 2 + (length - 1)) + 1;
+
+  for (int index = 0; index < length; index++) {
+    drawCompactChar(text[index], startX + index * 3, y);
+  }
+}
+
 void renderTime() {
   DateTime now = rtcClock.now();
   drawTwoLineNumber(now.hour(), now.minute());
@@ -104,10 +142,14 @@ void renderTime() {
 
 void renderDate() {
   DateTime now = rtcClock.now();
+  char dateText[6];
+  char yearText[5];
+  snprintf(dateText, sizeof(dateText), "%02d/%02d", now.day(), now.month());
+  snprintf(yearText, sizeof(yearText), "%04d", now.year());
+
   turnOffDisplay();
-  drawNumberLine(now.day(), 2, 1);
-  drawNumberLine(now.month(), 2, 6);
-  drawNumberLine(now.year(), 4, 11);
+  drawCompactText(dateText, 3);
+  drawCompactText(yearText, 9);
   FastLED.show();
 }
 
