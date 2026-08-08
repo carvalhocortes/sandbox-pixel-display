@@ -69,7 +69,7 @@ void GifPlayer::requestNextImage() {
   playNextGif = true;
 }
 
-unsigned long GifPlayer::cycleNumber() const {
+unsigned long GifPlayer::cycleNumber() {
   return decoder.getCycleNumber();
 }
 

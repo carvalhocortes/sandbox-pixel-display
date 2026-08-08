@@ -58,8 +58,8 @@ void ClockRenderer::drawDayMonthLine(int day, int month, int y) {
 }
 
 void ClockRenderer::renderTime(const DateTime& value) {
-  char hourText[3];
-  char minuteText[3];
+  char hourText[4];
+  char minuteText[4];
   snprintf(hourText, sizeof(hourText), "%02d", value.hour());
   snprintf(minuteText, sizeof(minuteText), "%02d", value.minute());
 

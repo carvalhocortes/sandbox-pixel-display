@@ -13,7 +13,7 @@ public:
   bool begin();
   void update(unsigned long now);
   void requestNextImage();
-  unsigned long cycleNumber() const;
+  unsigned long cycleNumber();
 
 private:
   static GifPlayer* activePlayer;
