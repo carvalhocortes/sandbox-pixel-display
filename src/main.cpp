@@ -87,6 +87,16 @@ void drawTwoLineNumber(int top, int bottom) {
   FastLED.show();
 }
 
+void drawNumberLine(int number, int digits, int y) {
+  char text[5];
+  snprintf(text, sizeof(text), digits == 4 ? "%04d" : "%02d", number);
+
+  const int startX = WIDTH - (digits * 3) + 1;
+  for (int index = 0; index < digits; index++) {
+    drawClockChar(text[index], startX + index * 3, y);
+  }
+}
+
 void renderTime() {
   DateTime now = rtcClock.now();
   drawTwoLineNumber(now.hour(), now.minute());
@@ -94,7 +104,11 @@ void renderTime() {
 
 void renderDate() {
   DateTime now = rtcClock.now();
-  drawTwoLineNumber(now.day(), now.month());
+  turnOffDisplay();
+  drawNumberLine(now.day(), 2, 1);
+  drawNumberLine(now.month(), 2, 6);
+  drawNumberLine(now.year(), 4, 11);
+  FastLED.show();
 }
 
 int ledPosition(int x, int y) {
