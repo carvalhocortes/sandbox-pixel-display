@@ -1,15 +1,16 @@
 # Pixel Display
 
-Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel alterna GIFs armazenados em um cartão SD com a hora e a data lidas de um RTC, além de aceitar atualizações OTA via Wi-Fi.
+Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel alterna GIFs armazenados em um cartão SD com a hora, a data e o dia da semana lidos de um RTC, além de aceitar atualizações OTA via Wi-Fi.
 
 ## Funcionalidades
 
 - Reprodução aleatória de GIFs em `/gifs`, sem repetir imediatamente o último arquivo.
 - Hora em duas linhas com dígitos 3×5: hora e minutos.
 - Data em duas linhas: `DD  MM` e `AAAA`.
+- Dia da semana em formato abreviado: `SEG`, `TER`, `QUA`, `QUI`, `SEX`, `SAB` ou `DOM`.
 - Indicadores de inicialização `RTC OK` e `RTC NOK` no painel.
 - Sincronização do RTC com a data/hora usadas na compilação.
-- Mensagens no monitor serial para a imagem, hora e data exibidas.
+- Mensagens no monitor serial para a imagem, hora, data e dia da semana exibidos.
 - Atualização OTA pelo PlatformIO depois da primeira instalação via USB.
 
 ## Hardware e ligações
@@ -35,10 +36,10 @@ Nesta montagem, foi feita uma adaptação resistiva nas linhas `SDA` e `SCL` par
 ```text
 src/main.cpp              Bootstrap mínimo do Arduino
 src/DisplayApplication.cpp Composição e coordenação da aplicação
-src/DisplayScheduler.cpp   Alternância entre imagem, hora e data
+src/DisplayScheduler.cpp   Alternância entre imagem, hora, data e dia da semana
 src/GifPlayer.cpp          Decodificação GIF e seleção aleatória
 src/LedMatrix.cpp          Buffer WS2812 e mapeamento serpentino
-src/ClockRenderer.cpp      Renderização dos dígitos 3×5
+src/ClockRenderer.cpp      Renderização dos dígitos e letras 3×5
 src/RtcClock.cpp           Acesso e sincronização do RTC
 src/OtaService.cpp         Wi-Fi e ArduinoOTA
 src/DisplayLogger.cpp      Logs do conteúdo exibido
@@ -75,7 +76,8 @@ O monitor deve mostrar mensagens como:
 ```text
 [IMAGE] /gifs/nome-do-arquivo.gif
 [TIME] 17:42
-[DATE] 08/08 2026
+[DATE] 08/08/2026
+[WEEKDAY] DOM
 ```
 
 ## Configuração Wi-Fi local
