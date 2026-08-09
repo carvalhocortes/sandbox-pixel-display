@@ -1,15 +1,16 @@
 # Pixel Display
 
-Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel alterna GIFs armazenados em um cartão SD com a hora e a data lidas de um RTC, além de aceitar atualizações OTA via Wi-Fi.
+Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel alterna GIFs armazenados em um cartão SD com a hora, a data e o dia da semana lidos de um RTC, além de aceitar atualizações OTA via Wi-Fi.
 
 ## Funcionalidades
 
 - Reprodução aleatória de GIFs em `/gifs`, sem repetir imediatamente o último arquivo.
 - Hora em duas linhas com dígitos 3×5: hora e minutos.
 - Data em duas linhas: `DD  MM` e `AAAA`.
+- Dia da semana em formato abreviado: `SEG`, `TER`, `QUA`, `QUI`, `SEX`, `SAB` ou `DOM`.
 - Indicadores de inicialização `RTC OK` e `RTC NOK` no painel.
 - Sincronização do RTC com a data/hora usadas na compilação.
-- Mensagens no monitor serial para a imagem, hora e data exibidas.
+- Mensagens no monitor serial para a imagem, hora, data e dia da semana exibidos.
 - Atualização OTA pelo PlatformIO depois da primeira instalação via USB.
 
 ## Hardware e ligações
@@ -35,10 +36,10 @@ Nesta montagem, foi feita uma adaptação resistiva nas linhas `SDA` e `SCL` par
 ```text
 src/main.cpp              Bootstrap mínimo do Arduino
 src/DisplayApplication.cpp Composição e coordenação da aplicação
-src/DisplayScheduler.cpp   Alternância entre imagem, hora e data
+src/DisplayScheduler.cpp   Alternância entre imagem, hora, data e dia da semana
 src/GifPlayer.cpp          Decodificação GIF e seleção aleatória
 src/LedMatrix.cpp          Buffer WS2812 e mapeamento serpentino
-src/ClockRenderer.cpp      Renderização dos dígitos 3×5
+src/ClockRenderer.cpp      Renderização dos dígitos e letras 3×5
 src/RtcClock.cpp           Acesso e sincronização do RTC
 src/OtaService.cpp         Wi-Fi e ArduinoOTA
 src/DisplayLogger.cpp      Logs do conteúdo exibido
@@ -74,8 +75,9 @@ O monitor deve mostrar mensagens como:
 
 ```text
 [IMAGE] /gifs/nome-do-arquivo.gif
-[TIME] 17:42
-[DATE] 08/08 2026
+[TIME] 17:42:01
+[DATE] 08/08/2026
+[WEEKDAY] DOM
 ```
 
 ## Configuração Wi-Fi local
@@ -116,13 +118,20 @@ Se a rede estiver indisponível ou as credenciais estiverem incorretas, o firmwa
 
 ## Sincronização do RTC
 
-O firmware usa `__DATE__` e `__TIME__` durante o build. Portanto:
+O firmware usa `__DATE__` e `__TIME__` durante o build e grava o timestamp da
+compilação no NVRAM interno do DS1307. Portanto:
 
 1. Confirme o horário do computador.
 2. Faça o Build.
 3. Faça o Upload logo em seguida.
 
-O RTC é sincronizado no boot. A biblioteca usada é `RTClib`; o firmware utiliza a interface `RTC_DS1307` no endereço `0x68`.
+Quando o timestamp do firmware for diferente do último timestamp salvo, o
+RTC é sincronizado uma vez com o horário da compilação. Em reinicializações
+normais, o horário salvo no RTC é preservado. Assim, um novo firmware corrige
+uma hora antiga, mas o mesmo firmware não reajusta o RTC a cada boot.
+Quando a comunicação estiver funcionando, o monitor mostra a data e hora atual
+lidas do RTC. A biblioteca usada é `RTClib`; o firmware utiliza a interface
+`RTC_DS1307` no endereço `0x68`.
 
 Se a inicialização falhar, o monitor serial mostrará `RTC inicializacao: NOK` e o painel exibirá `RTC NOK`. Quando a comunicação estiver funcionando, serão mostrados `RTC inicializacao: OK`, a sincronização com o horário do computador e `RTC OK` no painel.
 

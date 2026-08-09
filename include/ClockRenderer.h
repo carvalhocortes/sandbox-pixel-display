@@ -10,6 +10,7 @@ public:
   ClockRenderer(LedMatrix& matrix, DisplayLogger& logger);
   void renderTime(const DateTime& value);
   void renderDate(const DateTime& value);
+  void renderWeekday(const DateTime& value);
   void renderRtcOk();
   void renderRtcError();
 

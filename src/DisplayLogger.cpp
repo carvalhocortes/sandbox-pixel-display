@@ -8,12 +8,19 @@ void DisplayLogger::image(const char *path) const
 
 void DisplayLogger::time(const DateTime &value) const
 {
-  Serial.printf("[TIME] %02d:%02d\n", value.hour(), value.minute());
+  Serial.printf("[TIME] %02d:%02d:%02d\n", value.hour(), value.minute(), value.second());
 }
 
 void DisplayLogger::date(const DateTime &value) const
 {
   Serial.printf("[DATE] %02d/%02d/%04d\n", value.day(), value.month(), value.year());
+}
+
+void DisplayLogger::weekday(const DateTime &value) const
+{
+  static const char *const names[] = {"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"};
+  Serial.print("[WEEKDAY] ");
+  Serial.println(names[value.dayOfTheWeek()]);
 }
 
 void DisplayLogger::rtcOk() const

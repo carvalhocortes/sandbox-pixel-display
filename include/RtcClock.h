@@ -6,7 +6,8 @@ class RtcClock {
 public:
   bool begin(uint8_t sdaPin, uint8_t sclPin);
   bool isAvailable() const;
-  void synchronizeToBuildTime();
+  bool needsSynchronization(const DateTime& buildTime);
+  void synchronizeToBuildTime(const DateTime& buildTime);
   DateTime now();
 
 private:

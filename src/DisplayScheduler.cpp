@@ -21,6 +21,9 @@ bool DisplayScheduler::update(unsigned long now, unsigned long gifCycles) {
     nextMode = DisplayMode::Date;
   } else if (currentMode == DisplayMode::Date &&
              (now - modeStartedAt) > dateDurationMs) {
+    nextMode = DisplayMode::Weekday;
+  } else if (currentMode == DisplayMode::Weekday &&
+             (now - modeStartedAt) > weekdayDurationMs) {
     nextMode = DisplayMode::Image;
   }
 
