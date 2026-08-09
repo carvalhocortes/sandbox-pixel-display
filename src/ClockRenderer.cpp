@@ -17,6 +17,8 @@ const uint8_t glyphs[10][5] = {
     {0b111, 0b001, 0b001, 0b001, 0b001},
     {0b111, 0b101, 0b111, 0b101, 0b111},
     {0b111, 0b101, 0b111, 0b001, 0b111}};
+
+const char* const weekdays[] = {"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"};
 }
 
 ClockRenderer::ClockRenderer(LedMatrix& matrix, DisplayLogger& logger)
@@ -56,6 +58,61 @@ void ClockRenderer::drawChar(char value, int x, int y) {
         }
         case 'K': {
           const uint8_t glyph[5] = {0b101, 0b110, 0b110, 0b110, 0b101};
+          bits = glyph[row];
+          break;
+        }
+        case 'A': {
+          const uint8_t glyph[5] = {0b010, 0b101, 0b111, 0b101, 0b101};
+          bits = glyph[row];
+          break;
+        }
+        case 'B': {
+          const uint8_t glyph[5] = {0b110, 0b101, 0b110, 0b101, 0b110};
+          bits = glyph[row];
+          break;
+        }
+        case 'D': {
+          const uint8_t glyph[5] = {0b110, 0b101, 0b101, 0b101, 0b110};
+          bits = glyph[row];
+          break;
+        }
+        case 'E': {
+          const uint8_t glyph[5] = {0b111, 0b100, 0b110, 0b100, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'G': {
+          const uint8_t glyph[5] = {0b111, 0b100, 0b101, 0b101, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'I': {
+          const uint8_t glyph[5] = {0b111, 0b010, 0b010, 0b010, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'M': {
+          const uint8_t glyph[5] = {0b101, 0b111, 0b111, 0b101, 0b101};
+          bits = glyph[row];
+          break;
+        }
+        case 'Q': {
+          const uint8_t glyph[5] = {0b111, 0b101, 0b101, 0b111, 0b001};
+          bits = glyph[row];
+          break;
+        }
+        case 'S': {
+          const uint8_t glyph[5] = {0b111, 0b100, 0b111, 0b001, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'U': {
+          const uint8_t glyph[5] = {0b101, 0b101, 0b101, 0b101, 0b111};
+          bits = glyph[row];
+          break;
+        }
+        case 'X': {
+          const uint8_t glyph[5] = {0b101, 0b101, 0b010, 0b101, 0b101};
           bits = glyph[row];
           break;
         }
@@ -127,5 +184,12 @@ void ClockRenderer::renderDate(const DateTime& value) {
   matrix.clear();
   drawDayMonthLine(value.day(), value.month(), 3);
   drawNumberLine(yearText, 9);
+  matrix.show();
+}
+
+void ClockRenderer::renderWeekday(const DateTime& value) {
+  logger.weekday(value);
+  matrix.clear();
+  drawNumberLine(weekdays[value.dayOfTheWeek()], 6);
   matrix.show();
 }

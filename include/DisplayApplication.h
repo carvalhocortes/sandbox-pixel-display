@@ -24,4 +24,5 @@ private:
   DisplayScheduler scheduler;
   int lastClockTop = -1;
   int lastClockBottom = -1;
+  int lastClockWeekday = -1;
 };

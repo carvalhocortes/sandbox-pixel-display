@@ -52,6 +52,7 @@ void DisplayApplication::update() {
   if (scheduler.update(now, gifs.cycleNumber())) {
     lastClockTop = -1;
     lastClockBottom = -1;
+    lastClockWeekday = -1;
     matrix.clear();
     if (scheduler.mode() == DisplayMode::Image) {
       gifs.requestNextImage();
@@ -71,6 +72,17 @@ void DisplayApplication::update() {
   }
 
   const DateTime current = rtc.now();
+  if (scheduler.mode() == DisplayMode::Weekday) {
+    const int weekday = current.dayOfTheWeek();
+    if (weekday == lastClockWeekday) {
+      return;
+    }
+
+    clock.renderWeekday(current);
+    lastClockWeekday = weekday;
+    return;
+  }
+
   const int top = scheduler.mode() == DisplayMode::Time ? current.hour() : current.day();
   const int bottom = scheduler.mode() == DisplayMode::Time ? current.minute() : current.month();
 
