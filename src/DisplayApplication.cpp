@@ -18,8 +18,31 @@ void DisplayApplication::begin() {
   if (!rtcAvailable) {
     Serial.println("RTC nao encontrado em 0x68");
   } else {
-    rtc.synchronizeToBuildTime();
-    Serial.println("RTC sincronizado com o horario do computador");
+    const DateTime computerTime(F(__DATE__), F(__TIME__));
+    if (rtc.needsSynchronization(computerTime)) {
+      rtc.synchronizeToBuildTime(computerTime);
+      Serial.println("RTC sincronizado com o horario do computador");
+      Serial.printf(
+          "Horario do computador: %02d/%02d/%04d %02d:%02d:%02d\n",
+          computerTime.day(),
+          computerTime.month(),
+          computerTime.year(),
+          computerTime.hour(),
+          computerTime.minute(),
+          computerTime.second());
+    } else {
+      Serial.println("RTC mantendo o horario salvo");
+    }
+
+    const DateTime rtcTime = rtc.now();
+    Serial.printf(
+        "Data/hora do RTC: %02d/%02d/%04d %02d:%02d:%02d\n",
+        rtcTime.day(),
+        rtcTime.month(),
+        rtcTime.year(),
+        rtcTime.hour(),
+        rtcTime.minute(),
+        rtcTime.second());
   }
 
   matrix.begin(DisplayConfig::Brightness);

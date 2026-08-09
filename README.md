@@ -118,13 +118,20 @@ Se a rede estiver indisponível ou as credenciais estiverem incorretas, o firmwa
 
 ## Sincronização do RTC
 
-O firmware usa `__DATE__` e `__TIME__` durante o build. Portanto:
+O firmware usa `__DATE__` e `__TIME__` durante o build e grava o timestamp da
+compilação no NVRAM interno do DS1307. Portanto:
 
 1. Confirme o horário do computador.
 2. Faça o Build.
 3. Faça o Upload logo em seguida.
 
-O RTC é sincronizado no boot. A biblioteca usada é `RTClib`; o firmware utiliza a interface `RTC_DS1307` no endereço `0x68`.
+Quando o timestamp do firmware for diferente do último timestamp salvo, o
+RTC é sincronizado uma vez com o horário da compilação. Em reinicializações
+normais, o horário salvo no RTC é preservado. Assim, um novo firmware corrige
+uma hora antiga, mas o mesmo firmware não reajusta o RTC a cada boot.
+Quando a comunicação estiver funcionando, o monitor mostra a data e hora atual
+lidas do RTC. A biblioteca usada é `RTClib`; o firmware utiliza a interface
+`RTC_DS1307` no endereço `0x68`.
 
 Se a inicialização falhar, o monitor serial mostrará `RTC inicializacao: NOK` e o painel exibirá `RTC NOK`. Quando a comunicação estiver funcionando, serão mostrados `RTC inicializacao: OK`, a sincronização com o horário do computador e `RTC OK` no painel.
 
