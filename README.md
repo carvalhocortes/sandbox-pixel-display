@@ -32,6 +32,52 @@ O módulo RTC possui resistores de pull-up do barramento I²C ligados à aliment
 
 Nesta montagem, foi feita uma adaptação resistiva nas linhas `SDA` e `SCL` para adequar os níveis do módulo RTC ao ESP8266. Essa adaptação é necessária para evitar leituras intermitentes ou a perda do RTC após reinicializações. Os valores e o esquema exatos dos resistores dependem da placa utilizada e devem ser mantidos conforme a montagem validada.
 
+### Diagrama do circuito atual
+
+O diagrama abaixo representa somente as ligações já definidas. A ligação dos
+botões ainda não faz parte do circuito e será documentada quando a montagem for
+decidida.
+
+```text
+                                      +----------------------+
+                                      |  Matriz WS2812 16x16 |
+                                      |  DIN                 |
+                                      +----^-----------------+
+                                           |
+                                           | D4
+                                           |
++----------------------+                   |
+| ESP8266 NodeMCU      |                   |
+|                      |                   |
+| D3  -----------------+-----------------------> CS SD
+|                      |                   |
+| D5  ---------------------------------------> SCK SD
+| D6  <--------------------------------------- MISO SD
+| D7  ---------------------------------------> MOSI SD
+|                      |                   |
+| D2  -------- SDA ---[adaptação resistiva]--- SDA RTC
+| D1  -------- SCL ---[adaptação resistiva]--- SCL RTC
+|                      |                   |
+| VCC -----------------+----------------------> VCC dos módulos
+| GND -----------------+----------------------> GND comum
++----------------------+                   |
+                                           |
+                                      +----v-------------+
+                                      | Cartão/módulo SD |
+                                      +------------------+
+
+                                      +------------------+
+                                      | Módulo RTC HW-111|
+                                      | DS1307: 0x68     |
+                                      | EEPROM: 0x50     |
+                                      +------------------+
+```
+
+No NodeMCU, o cartão SD usa o barramento SPI de hardware: `D5` (SCK), `D6`
+(MISO), `D7` (MOSI) e `D3` (CS). O RTC usa I²C em `D2` (SDA) e `D1` (SCL).
+As linhas I²C devem permanecer com pull-ups compatíveis com 3,3 V; não ligar
+pull-ups de 5 V diretamente aos GPIOs do ESP8266.
+
 ## Estrutura do código
 
 ```text
