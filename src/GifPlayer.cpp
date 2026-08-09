@@ -68,6 +68,7 @@ void GifPlayer::update(unsigned long now) {
     }
   }
 
+  beginFrame();
   const int result = decoder.decodeFrame(false);
   lastFrameDisplayedAt = now;
   currentFrameDelay = decoder.getFrameDelay_ms();
@@ -86,14 +87,80 @@ unsigned long GifPlayer::cycleNumber() {
 }
 
 void GifPlayer::clearCallback() {
-  activePlayer->matrix.clear();
+  activePlayer->beginGif();
 }
 
 void GifPlayer::updateCallback() {
-  activePlayer->matrix.show();
+  activePlayer->renderFrame();
 }
 
 void GifPlayer::drawPixelCallback(
     int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
-  activePlayer->matrix.drawGifPixel(x, y, red, green, blue);
+  activePlayer->capturePixel(x, y, red, green, blue);
+}
+
+void GifPlayer::beginGif() {
+  backgroundColor = CRGB::Black;
+  backgroundColorReady = false;
+  beginFrame();
+  matrix.clear();
+}
+
+void GifPlayer::beginFrame() {
+  const CRGB fillColor = backgroundColorReady ? backgroundColor : CRGB::Black;
+  for (uint16_t index = 0; index < DisplayConfig::LedCount; index++) {
+    framePixels[index] = fillColor;
+    framePixelsDrawn[index] = 0;
+  }
+
+  redTotal = 0;
+  greenTotal = 0;
+  blueTotal = 0;
+  drawnPixelCount = 0;
+}
+
+void GifPlayer::capturePixel(
+    int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue) {
+  if (x < 0 || x >= DisplayConfig::Width || y < 0 || y >= DisplayConfig::Height) {
+    return;
+  }
+
+  const uint16_t index = y * DisplayConfig::Width + x;
+  framePixels[index] = CRGB(red, green, blue);
+
+  if (framePixelsDrawn[index] == 0) {
+    framePixelsDrawn[index] = 1;
+    redTotal += red;
+    greenTotal += green;
+    blueTotal += blue;
+    drawnPixelCount++;
+  }
+}
+
+void GifPlayer::renderFrame() {
+  if (!backgroundColorReady && drawnPixelCount > 0) {
+    backgroundColor = CRGB(
+        redTotal / drawnPixelCount,
+        greenTotal / drawnPixelCount,
+        blueTotal / drawnPixelCount);
+    backgroundColorReady = true;
+
+    if (drawnPixelCount < DisplayConfig::LedCount) {
+      Serial.printf(
+          "[GIF] fundo medio RGB(%u,%u,%u)\n",
+          backgroundColor.r,
+          backgroundColor.g,
+          backgroundColor.b);
+    }
+  }
+
+  if (backgroundColorReady) {
+    for (uint16_t index = 0; index < DisplayConfig::LedCount; index++) {
+      if (framePixelsDrawn[index] == 0) {
+        framePixels[index] = backgroundColor;
+      }
+    }
+  }
+
+  matrix.showGifFrame(framePixels);
 }
