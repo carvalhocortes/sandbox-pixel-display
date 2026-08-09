@@ -22,16 +22,6 @@ void LedMatrix::show() {
   FastLED.show();
 }
 
-void LedMatrix::showGifFrame(const CRGB* framePixels) {
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
-      setPixel(x + 1, y + 1, framePixels[y * width + x]);
-    }
-  }
-
-  show();
-}
-
 int LedMatrix::position(int x, int y) const {
   if (x < 1 || x > width || y < 1 || y > height) {
     return 0;

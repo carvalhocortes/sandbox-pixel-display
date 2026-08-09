@@ -1,6 +1,5 @@
 #pragma once
 
-#include <FastLED.h>
 #include <GifDecoder.h>
 
 #include "DisplayConfig.h"
@@ -22,10 +21,6 @@ private:
   static void updateCallback();
   static void drawPixelCallback(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue);
   int chooseNextFile();
-  void beginGif();
-  void beginFrame();
-  void renderFrame();
-  void capturePixel(int16_t x, int16_t y, uint8_t red, uint8_t green, uint8_t blue);
 
   LedMatrix& matrix;
   const char* directory;
@@ -37,12 +32,4 @@ private:
   unsigned long displayStartedAt = 0;
   uint32_t lastFrameDisplayedAt = 0;
   unsigned int currentFrameDelay = 0;
-  CRGB framePixels[DisplayConfig::LedCount];
-  uint8_t framePixelsDrawn[DisplayConfig::LedCount];
-  CRGB backgroundColor = CRGB::Black;
-  bool backgroundColorReady = false;
-  uint32_t redTotal = 0;
-  uint32_t greenTotal = 0;
-  uint32_t blueTotal = 0;
-  uint16_t drawnPixelCount = 0;
 };
