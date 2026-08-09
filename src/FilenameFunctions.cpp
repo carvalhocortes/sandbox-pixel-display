@@ -119,9 +119,9 @@ void getGIFFilenameByIndex(const char *directoryName, int index, char *pnBuffer)
         if (isAnimationFile(file.name())) {
             index--;
 
-            // Copy the directory name into the pathname buffer			
+            // Copy the directory name into the pathname buffer
             strcpy(pnBuffer, directoryName);
-			
+
 			//ESP32 SD Library includes the full path name in the filename, so no need to add the directory name
 #if defined(ESP32)
             pnBuffer[0] = 0;
@@ -145,8 +145,8 @@ int openGifFilenameByIndex(const char *directoryName, int index) {
     char pathname[255];
 
     getGIFFilenameByIndex(directoryName, index, pathname);
-    
-    Serial.print("Pathname: ");
+
+    Serial.print("[IMAGE] ");
     Serial.println(pathname);
 
     if(file)

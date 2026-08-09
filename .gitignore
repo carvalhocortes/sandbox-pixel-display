@@ -1,4 +1,6 @@
 .pio
 .vscode
+platformio.local.ini
+.DS_Store
 test
 3dPrints/*.gcode
