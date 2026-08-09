@@ -75,7 +75,7 @@ O monitor deve mostrar mensagens como:
 
 ```text
 [IMAGE] /gifs/nome-do-arquivo.gif
-[TIME] 17:42
+[TIME] 17:42:01
 [DATE] 08/08/2026
 [WEEKDAY] DOM
 ```
