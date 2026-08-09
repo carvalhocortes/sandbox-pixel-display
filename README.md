@@ -10,6 +10,7 @@ Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeM
 - Dia da semana em formato abreviado: `SEG`, `TER`, `QUA`, `QUI`, `SEX`, `SAB` ou `DOM`.
 - Indicadores de inicialização `RTC OK` e `RTC NOK` no painel.
 - Sincronização do RTC com a data/hora usadas na compilação.
+- Ajuste do RTC por comando no monitor serial.
 - Mensagens no monitor serial para a imagem, hora, data e dia da semana exibidos.
 - Atualização OTA pelo PlatformIO depois da primeira instalação via USB.
 
@@ -134,6 +135,29 @@ lidas do RTC. A biblioteca usada é `RTClib`; o firmware utiliza a interface
 `RTC_DS1307` no endereço `0x68`.
 
 Se a inicialização falhar, o monitor serial mostrará `RTC inicializacao: NOK` e o painel exibirá `RTC NOK`. Quando a comunicação estiver funcionando, serão mostrados `RTC inicializacao: OK`, a sincronização com o horário do computador e `RTC OK` no painel.
+
+### Ajuste pelo monitor serial
+
+O monitor serial não envia automaticamente a hora do computador para o ESP8266.
+Para ajustar o RTC, copie a hora atual do computador e envie uma linha no formato:
+
+```text
+SYNC 2026-08-09 21:30:00
+```
+
+O formato é `SYNC AAAA-MM-DD HH:MM:SS`. O firmware responde com o horário gravado
+e preserva esse ajuste nos próximos reinícios. Use `STATUS` para consultar o
+horário atual e `HELP` para listar os comandos.
+
+Para enviar a hora local automaticamente, feche o monitor serial e execute no
+computador:
+
+```sh
+python tools/sync_rtc.py --port /dev/cu.usbserial-XXXX
+```
+
+Substitua a porta pelo dispositivo do NodeMCU. O script envia a hora atual e
+aguarda a confirmação `RTC ajustado para`.
 
 ## Desenvolvimento
 
