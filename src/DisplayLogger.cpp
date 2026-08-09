@@ -8,7 +8,7 @@ void DisplayLogger::image(const char *path) const
 
 void DisplayLogger::time(const DateTime &value) const
 {
-  Serial.printf("[TIME] %02d:%02d\n", value.hour(), value.minute());
+  Serial.printf("[TIME] %02d:%02d:%02d\n", value.hour(), value.minute(), value.second());
 }
 
 void DisplayLogger::date(const DateTime &value) const
