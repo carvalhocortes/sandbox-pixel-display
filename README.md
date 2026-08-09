@@ -1,4 +1,3 @@
-# pixelDisplay
 # Pixel Display
 
 Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel alterna GIFs armazenados em um cartão SD com a hora e a data lidas de um RTC, além de aceitar atualizações OTA via Wi-Fi.
@@ -8,6 +7,7 @@ Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeM
 - Reprodução aleatória de GIFs em `/gifs`, sem repetir imediatamente o último arquivo.
 - Hora em duas linhas com dígitos 3×5: hora e minutos.
 - Data em duas linhas: `DD  MM` e `AAAA`.
+- Indicadores de inicialização `RTC OK` e `RTC NOK` no painel.
 - Sincronização do RTC com a data/hora usadas na compilação.
 - Mensagens no monitor serial para a imagem, hora e data exibidas.
 - Atualização OTA pelo PlatformIO depois da primeira instalação via USB.
@@ -23,6 +23,12 @@ Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeM
 | Alimentação/GND | VCC/GND comuns |
 
 O módulo HW-111 usa um RTC DS1307 no endereço I²C `0x68`. O endereço `0x50` é a EEPROM presente no mesmo módulo.
+
+### Adaptação elétrica do RTC
+
+O módulo RTC possui resistores de pull-up do barramento I²C ligados à alimentação da placa. Como o ESP8266 trabalha com GPIOs de 3,3 V, as linhas `SDA` e `SCL` não devem receber pull-up em 5 V.
+
+Nesta montagem, foi feita uma adaptação resistiva nas linhas `SDA` e `SCL` para adequar os níveis do módulo RTC ao ESP8266. Essa adaptação é necessária para evitar leituras intermitentes ou a perda do RTC após reinicializações. Os valores e o esquema exatos dos resistores dependem da placa utilizada e devem ser mantidos conforme a montagem validada.
 
 ## Estrutura do código
 
@@ -45,7 +51,7 @@ include/DisplayConfig.h    Pinos, dimensões e temporizações
 1. Instale a extensão PlatformIO.
 2. Abra esta pasta como projeto.
 3. O ambiente usado é `nodemcuv2`.
-4. Insira os GIFs na pasta `/gifs` do cartão SD.
+4. Copie os GIFs da pasta `img/` (ou outros arquivos compatíveis) para a pasta `/gifs` do cartão SD.
 
 As bibliotecas são baixadas automaticamente conforme `platformio.ini`:
 
@@ -115,6 +121,8 @@ O firmware usa `__DATE__` e `__TIME__` durante o build. Portanto:
 3. Faça o Upload logo em seguida.
 
 O RTC é sincronizado no boot. A biblioteca usada é `RTClib`; o firmware utiliza a interface `RTC_DS1307` no endereço `0x68`.
+
+Se a inicialização falhar, o monitor serial mostrará `RTC inicializacao: NOK` e o painel exibirá `RTC NOK`. Quando a comunicação estiver funcionando, serão mostrados `RTC inicializacao: OK`, a sincronização com o horário do computador e `RTC OK` no painel.
 
 ## Desenvolvimento
 

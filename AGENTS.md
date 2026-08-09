@@ -24,6 +24,7 @@
 - SD chip select: `D3`.
 - RTC SDA: `D2`; RTC SCL: `D1`.
 - RTC device address: `0x68`; the module EEPROM at `0x50` is expected.
+- The RTC module I²C pull-ups must be adapted to the ESP8266's 3.3 V GPIO level. Do not connect SDA/SCL pull-ups at 5 V; this assembly uses a resistor adaptation on both lines.
 - GIF directory on the SD card: `/gifs`.
 - Serial monitor: `115200` baud.
 
@@ -36,7 +37,7 @@ pio run -e nodemcuv2
 pio run -e nodemcuv2 -t clean
 ```
 
-Validate on hardware: SD initialization, RTC detection and synchronization, image ordering, two-line clock/date rendering, OTA connectivity, and the WS2812 serpentine mapping.
+Validate on hardware: SD initialization, RTC detection and synchronization, the `RTC OK`/`RTC NOK` indicators, image ordering, two-line clock/date rendering, OTA connectivity, and the WS2812 serpentine mapping.
 
 ## Wi-Fi and OTA secrets
 
