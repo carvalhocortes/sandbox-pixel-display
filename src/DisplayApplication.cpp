@@ -1,6 +1,8 @@
 #include "DisplayApplication.h"
 
 #include <Arduino.h>
+#include <cstdio>
+#include <cstring>
 
 #include "DisplayConfig.h"
 
@@ -71,6 +73,7 @@ void DisplayApplication::begin() {
 void DisplayApplication::update() {
   const unsigned long now = millis();
   ota.handle();
+  handleSerialCommands();
 
   if (scheduler.update(now, gifs.cycleNumber())) {
     lastClockTop = -1;
@@ -121,4 +124,126 @@ void DisplayApplication::update() {
 
   lastClockTop = top;
   lastClockBottom = bottom;
+}
+
+void DisplayApplication::handleSerialCommands() {
+  while (Serial.available() > 0) {
+    const char character = static_cast<char>(Serial.read());
+
+    if (character == '\r') {
+      continue;
+    }
+
+    if (character == '\n') {
+      if (serialCommandOverflowed) {
+        Serial.println("Comando serial muito longo");
+      } else if (serialCommandLength > 0) {
+        serialCommand[serialCommandLength] = '\0';
+        processSerialCommand();
+      }
+
+      serialCommandLength = 0;
+      serialCommandOverflowed = false;
+      continue;
+    }
+
+    if (serialCommandLength < sizeof(serialCommand) - 1) {
+      serialCommand[serialCommandLength++] = character;
+    } else {
+      serialCommandOverflowed = true;
+    }
+  }
+}
+
+void DisplayApplication::processSerialCommand() {
+  if (strcmp(serialCommand, "HELP") == 0) {
+    printSerialHelp();
+    return;
+  }
+
+  if (strcmp(serialCommand, "STATUS") == 0) {
+    if (!rtc.isAvailable()) {
+      Serial.println("RTC indisponivel");
+      return;
+    }
+
+    const DateTime current = rtc.now();
+    Serial.printf(
+        "Data/hora do RTC: %02d/%02d/%04d %02d:%02d:%02d\n",
+        current.day(),
+        current.month(),
+        current.year(),
+        current.hour(),
+        current.minute(),
+        current.second());
+    return;
+  }
+
+  unsigned int year = 0;
+  unsigned int month = 0;
+  unsigned int day = 0;
+  unsigned int hour = 0;
+  unsigned int minute = 0;
+  unsigned int second = 0;
+  char trailingCharacter = '\0';
+  const int valuesRead = sscanf(
+      serialCommand,
+      "SYNC %u-%u-%u %u:%u:%u %c",
+      &year,
+      &month,
+      &day,
+      &hour,
+      &minute,
+      &second,
+      &trailingCharacter);
+
+  if (valuesRead != 6) {
+    Serial.println("Comando desconhecido; envie HELP para ver os comandos");
+    return;
+  }
+
+  if (year < 2000 || year > 2099 || month < 1 || month > 12 || day < 1 ||
+      day > 31 || hour > 23 || minute > 59 || second > 59) {
+    Serial.println("Horario invalido; use SYNC AAAA-MM-DD HH:MM:SS");
+    return;
+  }
+
+  const DateTime requestedTime(
+      static_cast<uint16_t>(year),
+      static_cast<uint8_t>(month),
+      static_cast<uint8_t>(day),
+      static_cast<uint8_t>(hour),
+      static_cast<uint8_t>(minute),
+      static_cast<uint8_t>(second));
+  if (!requestedTime.isValid()) {
+    Serial.println("Horario invalido; use SYNC AAAA-MM-DD HH:MM:SS");
+    return;
+  }
+
+  if (!rtc.isAvailable()) {
+    Serial.println("RTC indisponivel; horario nao ajustado");
+    return;
+  }
+
+  const DateTime buildTime(F(__DATE__), F(__TIME__));
+  if (!rtc.setDateTime(requestedTime, buildTime)) {
+    Serial.println("RTC indisponivel; horario nao ajustado");
+    return;
+  }
+
+  Serial.printf(
+      "RTC ajustado para: %02d/%02d/%04d %02d:%02d:%02d\n",
+      requestedTime.day(),
+      requestedTime.month(),
+      requestedTime.year(),
+      requestedTime.hour(),
+      requestedTime.minute(),
+      requestedTime.second());
+}
+
+void DisplayApplication::printSerialHelp() const {
+  Serial.println("Comandos:");
+  Serial.println("  SYNC AAAA-MM-DD HH:MM:SS  ajusta o RTC");
+  Serial.println("  STATUS                    mostra o horario do RTC");
+  Serial.println("  HELP                      mostra esta ajuda");
 }

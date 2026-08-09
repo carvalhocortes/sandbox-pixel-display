@@ -8,6 +8,7 @@ public:
   bool isAvailable() const;
   bool needsSynchronization(const DateTime& buildTime);
   void synchronizeToBuildTime(const DateTime& buildTime);
+  bool setDateTime(const DateTime& dateTime, const DateTime& buildTime);
   DateTime now();
 
 private:

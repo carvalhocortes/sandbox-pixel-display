@@ -91,12 +91,17 @@ bool RtcClock::needsSynchronization(const DateTime& buildTime) {
 }
 
 void RtcClock::synchronizeToBuildTime(const DateTime& buildTime) {
+  setDateTime(buildTime, buildTime);
+}
+
+bool RtcClock::setDateTime(const DateTime& dateTime, const DateTime& buildTime) {
   if (!available) {
-    return;
+    return false;
   }
 
-  rtc.adjust(buildTime);
+  rtc.adjust(dateTime);
   storeBuildTimestamp(rtc, buildTime.unixtime());
+  return true;
 }
 
 DateTime RtcClock::now() {
