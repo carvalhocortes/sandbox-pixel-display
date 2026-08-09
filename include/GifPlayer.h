@@ -29,7 +29,6 @@ private:
   int fileCount = 0;
   int lastFileIndex = -1;
   bool playNextGif = true;
-  unsigned long displayStartedAt = 0;
   uint32_t lastFrameDisplayedAt = 0;
   unsigned int currentFrameDelay = 0;
 };

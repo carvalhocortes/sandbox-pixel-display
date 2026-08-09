@@ -16,6 +16,7 @@ constexpr unsigned long ImageDurationMs = 10000UL;
 constexpr unsigned long TimeDurationMs = 5000UL;
 constexpr unsigned long DateDurationMs = 5000UL;
 constexpr unsigned long MaxGifCycles = 100UL;
+constexpr unsigned long OtaConnectTimeoutMs = 15000UL;
 constexpr const char* GifDirectory = "/gifs";
 constexpr const char* OtaHostname = "pixel-display";
 }

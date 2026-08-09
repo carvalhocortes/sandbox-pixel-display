@@ -64,7 +64,6 @@ void GifPlayer::update(unsigned long now) {
         playNextGif = true;
         return;
       }
-      displayStartedAt = now;
     }
   }
 

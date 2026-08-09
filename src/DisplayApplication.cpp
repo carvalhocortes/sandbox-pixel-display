@@ -5,7 +5,7 @@
 #include "DisplayConfig.h"
 
 DisplayApplication::DisplayApplication()
-    : matrix(DisplayConfig::DataPin, DisplayConfig::Width, DisplayConfig::Height),
+    : matrix(DisplayConfig::Width, DisplayConfig::Height),
       gifs(matrix, DisplayConfig::GifDirectory, DisplayConfig::SdChipSelectPin),
       clock(matrix, logger) {}
 

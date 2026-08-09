@@ -45,6 +45,7 @@ Validate on hardware: SD initialization, RTC detection and synchronization, the 
 - Put `WIFI_SSID` and `WIFI_PASSWORD` only in `platformio.local.ini`.
 - This file is ignored by Git and must never be committed.
 - The first upload is via USB. After the board connects, set `upload_protocol = espota` and `upload_port` in the local file for OTA uploads.
+- Wi-Fi connection has a 15-second timeout; when it fails, the firmware continues without OTA instead of blocking the rest of the boot.
 
 ## Change guidelines
 

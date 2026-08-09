@@ -3,6 +3,8 @@
 #include <ArduinoOTA.h>
 #include <ESP8266WiFi.h>
 
+#include "DisplayConfig.h"
+
 #ifndef WIFI_SSID
 #define WIFI_SSID ""
 #endif
@@ -12,6 +14,8 @@
 #endif
 
 void OtaService::begin(const char* hostname) {
+  configured = false;
+
   if (WIFI_SSID[0] == '\0' || WIFI_PASSWORD[0] == '\0') {
     Serial.println("OTA desabilitado: configure platformio.local.ini");
     return;
@@ -22,12 +26,20 @@ void OtaService::begin(const char* hostname) {
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   Serial.print("Conectando ao Wi-Fi");
-  while (WiFi.status() != WL_CONNECTED) {
+  const unsigned long connectionStartedAt = millis();
+  while (WiFi.status() != WL_CONNECTED &&
+         millis() - connectionStartedAt < DisplayConfig::OtaConnectTimeoutMs) {
     delay(250);
     Serial.print('.');
   }
 
   Serial.println();
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.disconnect();
+    Serial.println("Wi-Fi nao conectado; OTA desabilitado");
+    return;
+  }
+
   Serial.print("Wi-Fi conectado: ");
   Serial.println(WiFi.localIP());
 

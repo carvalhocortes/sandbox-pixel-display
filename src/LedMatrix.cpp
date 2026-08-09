@@ -2,8 +2,8 @@
 
 #include "DisplayConfig.h"
 
-LedMatrix::LedMatrix(uint8_t dataPin, uint8_t width, uint8_t height)
-    : dataPin(dataPin), width(width), height(height) {}
+LedMatrix::LedMatrix(uint8_t width, uint8_t height)
+    : width(width), height(height) {}
 
 void LedMatrix::begin(uint8_t brightness) {
   FastLED.addLeds<WS2812, DisplayConfig::DataPin, GRB>(pixels, width * height);
@@ -24,7 +24,7 @@ void LedMatrix::show() {
 
 int LedMatrix::position(int x, int y) const {
   if (x < 1 || x > width || y < 1 || y > height) {
-    return 0;
+    return -1;
   }
 
   if (y % 2 == 0) {
@@ -35,7 +35,12 @@ int LedMatrix::position(int x, int y) const {
 }
 
 void LedMatrix::setPixel(int x, int y, const CRGB& color) {
-  pixels[position(x, y)] = color;
+  const int index = position(x, y);
+  if (index < 0) {
+    return;
+  }
+
+  pixels[index] = color;
 }
 
 void LedMatrix::drawPixel(int x, int y, const CRGB& color) {

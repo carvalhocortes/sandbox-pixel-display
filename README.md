@@ -112,6 +112,8 @@ upload_port = 192.168.0.123
 
 Substitua o IP pelo endereço mostrado no monitor e execute novamente **Upload** no PlatformIO. Se o IP mudar, atualize `upload_port`.
 
+Se a rede estiver indisponível ou as credenciais estiverem incorretas, o firmware aguardará até 15 segundos pela conexão e continuará funcionando sem OTA.
+
 ## Sincronização do RTC
 
 O firmware usa `__DATE__` e `__TIME__` durante o build. Portanto:
