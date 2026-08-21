@@ -131,6 +131,19 @@ void DisplayApplication::update() {
   }
 
   const DateTime current = isEditing() ? editingValue : rtc.now();
+  if (scheduler.mode() == DisplayMode::AnalogClock) {
+    if (current.hour() == lastClockTop && current.minute() == lastClockBottom &&
+        current.second() == lastClockSecond) {
+      return;
+    }
+
+    clock.renderAnalogClock(current);
+    lastClockTop = current.hour();
+    lastClockBottom = current.minute();
+    lastClockSecond = current.second();
+    return;
+  }
+
   if (scheduler.mode() == DisplayMode::Weekday) {
     const int weekday = current.dayOfTheWeek();
     if (weekday == lastClockWeekday) {
@@ -462,6 +475,7 @@ bool DisplayApplication::isEditing() const {
 void DisplayApplication::resetRenderedContent() {
   lastClockTop = -1;
   lastClockBottom = -1;
+  lastClockSecond = -1;
   lastClockWeekday = -1;
   editRenderPending = true;
   lastEditVisible = false;

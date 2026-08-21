@@ -12,6 +12,7 @@ class ClockRenderer {
 public:
   ClockRenderer(LedMatrix& matrix, DisplayLogger& logger);
   void renderTime(const DateTime& value);
+  void renderAnalogClock(const DateTime& value);
   void renderDate(const DateTime& value);
   void renderWeekday(const DateTime& value);
   void renderTimeEditing(const DateTime& value, ClockEditPart part, bool activeVisible);
@@ -42,6 +43,7 @@ private:
       const CRGB& color,
       ClockEditPart part,
       bool activeVisible);
+  void drawLine(int x0, int y0, int x1, int y1, const CRGB& color);
 
   LedMatrix& matrix;
   DisplayLogger& logger;

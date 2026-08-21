@@ -6,6 +6,7 @@ Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeM
 
 - Reprodução dos GIFs em `/gifs`, com troca manual pelos botões e repetição do GIF atual.
 - Hora em duas linhas com dígitos 3×5: hora e minutos.
+- Relógio analógico com círculo, ponteiros de hora e minuto e segundo azul.
 - Data em duas linhas: `DD  MM` e `AAAA`.
 - Dia da semana em formato abreviado: `SEG`, `TER`, `QUA`, `QUI`, `SEX`, `SAB` ou `DOM`.
 - Menu manual entre GIFs, hora, data e dia da semana.
@@ -89,7 +90,7 @@ pull-ups de 5 V diretamente aos GPIOs do ESP8266.
 ```text
 src/main.cpp              Bootstrap mínimo do Arduino
 src/DisplayApplication.cpp Composição e coordenação da aplicação
-src/DisplayScheduler.cpp   Alternância entre imagem, hora, data e dia da semana
+src/DisplayScheduler.cpp   Navegação entre imagem, relógios, data e dia da semana
 src/GifPlayer.cpp          Decodificação GIF e seleção manual/persistente
 src/LedMatrix.cpp          Buffer WS2812 e mapeamento serpentino
 src/ClockRenderer.cpp      Renderização dos dígitos e letras 3×5
@@ -167,7 +168,7 @@ os intervalos posteriormente.
 ### Menu pelos botões
 
 O modo mostrado não muda sozinho. O menu inicia em GIFs e segue a sequência
-`GIFs → hora → data → dia da semana → GIFs`:
+`GIFs → hora → relógio analógico → data → dia da semana → GIFs`:
 
 | Botão | Ação |
 |---|---|
@@ -176,6 +177,10 @@ O modo mostrado não muda sozinho. O menu inicia em GIFs e segue a sequência
 | UP | GIF anterior no modo GIFs; aumenta o brilho no modo dia |
 | DOWN | próximo GIF no modo GIFs; diminui o brilho no modo dia |
 | SELECT | salva o GIF atual como favorito, somente no modo GIFs |
+
+No relógio analógico, `UP`, `DOWN` e `SELECT` não fazem nada. O círculo é
+branco, os ponteiros mostram a hora e o minuto atuais e um pixel azul percorre
+o círculo a cada segundo.
 
 No modo dia da semana, `SELECT` não faz nada. `UP` e `DOWN` ajustam o brilho
 global em passos de 5%, entre 5% e 100%, e cada alteração é salva imediatamente

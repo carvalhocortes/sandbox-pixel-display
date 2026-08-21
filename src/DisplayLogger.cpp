@@ -11,6 +11,11 @@ void DisplayLogger::time(const DateTime &value) const
   Serial.printf("[TIME] %02d:%02d:%02d\n", value.hour(), value.minute(), value.second());
 }
 
+void DisplayLogger::analogClock(const DateTime &value) const
+{
+  Serial.printf("[ANALOG] %02d:%02d:%02d\n", value.hour(), value.minute(), value.second());
+}
+
 void DisplayLogger::date(const DateTime &value) const
 {
   Serial.printf("[DATE] %02d/%02d/%04d\n", value.day(), value.month(), value.year());

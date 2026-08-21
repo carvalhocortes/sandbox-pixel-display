@@ -1,5 +1,6 @@
 #include "ClockRenderer.h"
 
+#include <cmath>
 #include <cstring>
 
 #include "DisplayLogger.h"
@@ -22,6 +23,8 @@ const char* const weekdays[] = {"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"}
 const CRGB White(255, 255, 255);
 const CRGB EditGreen(128, 255, 128);
 const CRGB Red(255, 0, 0);
+const CRGB Blue(0, 0, 255);
+constexpr float Pi = 3.14159265359f;
 }
 
 ClockRenderer::ClockRenderer(LedMatrix& matrix, DisplayLogger& logger)
@@ -130,6 +133,32 @@ void ClockRenderer::drawChar(char value, int x, int y, const CRGB& color) {
   }
 }
 
+void ClockRenderer::drawLine(
+    int x0, int y0, int x1, int y1, const CRGB& color) {
+  const int deltaX = abs(x1 - x0);
+  const int stepX = x0 < x1 ? 1 : -1;
+  const int deltaY = -abs(y1 - y0);
+  const int stepY = y0 < y1 ? 1 : -1;
+  int error = deltaX + deltaY;
+
+  while (true) {
+    matrix.drawPixel(x0, y0, color);
+    if (x0 == x1 && y0 == y1) {
+      return;
+    }
+
+    const int doubleError = 2 * error;
+    if (doubleError >= deltaY) {
+      error += deltaY;
+      x0 += stepX;
+    }
+    if (doubleError <= deltaX) {
+      error += deltaX;
+      y0 += stepY;
+    }
+  }
+}
+
 void ClockRenderer::renderRtcError() {
   logger.rtcError();
   matrix.clear();
@@ -195,6 +224,48 @@ void ClockRenderer::renderTimeEditing(
 
 void ClockRenderer::renderTimeFlash(const DateTime& value, bool visible) {
   renderTimeContent(value, Red, ClockEditPart::None, visible);
+}
+
+void ClockRenderer::renderAnalogClock(const DateTime& value) {
+  constexpr float center = 8.5f;
+  constexpr float radius = 7.5f;
+  constexpr int handOrigin = 9;
+
+  matrix.clear();
+
+  for (int step = 0; step < 60; step++) {
+    const float angle = static_cast<float>(step) * 2.0f * Pi / 60.0f;
+    const int x = static_cast<int>(std::round(center + std::sin(angle) * radius));
+    const int y = static_cast<int>(std::round(center - std::cos(angle) * radius));
+    matrix.drawPixel(x, y, White);
+  }
+
+  const float hourAngle =
+      (static_cast<float>(value.hour() % 12) + value.minute() / 60.0f) * Pi / 6.0f;
+  const float minuteAngle =
+      (static_cast<float>(value.minute()) + value.second() / 60.0f) * Pi / 30.0f;
+
+  const int hourX = static_cast<int>(std::round(
+      center + std::sin(hourAngle) * 4.5f));
+  const int hourY = static_cast<int>(std::round(
+      center - std::cos(hourAngle) * 4.5f));
+  const int minuteX = static_cast<int>(std::round(
+      center + std::sin(minuteAngle) * 6.0f));
+  const int minuteY = static_cast<int>(std::round(
+      center - std::cos(minuteAngle) * 6.0f));
+
+  drawLine(handOrigin, handOrigin, hourX, hourY, White);
+  drawLine(handOrigin, handOrigin, minuteX, minuteY, White);
+
+  const float secondAngle = static_cast<float>(value.second()) * Pi / 30.0f;
+  const int secondX = static_cast<int>(std::round(
+      center + std::sin(secondAngle) * radius));
+  const int secondY = static_cast<int>(std::round(
+      center - std::cos(secondAngle) * radius));
+  matrix.drawPixel(secondX, secondY, Blue);
+
+  matrix.show();
+  logger.analogClock(value);
 }
 
 void ClockRenderer::renderTimeContent(

@@ -46,6 +46,7 @@ private:
   DisplayScheduler scheduler;
   int lastClockTop = -1;
   int lastClockBottom = -1;
+  int lastClockSecond = -1;
   int lastClockWeekday = -1;
   EditField editField = EditField::None;
   DateTime editingValue = DateTime(2000, 1, 1, 0, 0, 0);
