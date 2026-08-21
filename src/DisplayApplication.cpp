@@ -43,9 +43,8 @@ void DisplayApplication::begin() {
   Serial.println("Display application starting");
   buttons.begin();
   brightnessStore.begin();
-  const uint8_t configuredBrightness =
-      brightnessStore.load(DisplayConfig::Brightness);
-  Serial.printf("Brilho carregado: %u/255\n", configuredBrightness);
+  const uint8_t configuredBrightness = DisplayConfig::Brightness;
+  Serial.printf("Brilho inicial forcado: %u/255\n", configuredBrightness);
 
   const bool rtcAvailable = rtc.begin(DisplayConfig::RtcSdaPin, DisplayConfig::RtcSclPin);
   if (!rtcAvailable) {
@@ -79,7 +78,7 @@ void DisplayApplication::begin() {
   }
 
   matrix.begin(configuredBrightness);
-  matrix.testColorsBars(5000, 64);
+  matrix.testColorsBars(5000, configuredBrightness);
 
   if (rtcAvailable) {
     clock.renderRtcOk();
