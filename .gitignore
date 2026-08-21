@@ -2,5 +2,7 @@
 .vscode
 platformio.local.ini
 .DS_Store
+.agents/
+skills-lock.json
 test
 3dPrints/*.gcode
