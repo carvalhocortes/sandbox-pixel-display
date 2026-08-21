@@ -178,8 +178,9 @@ O modo mostrado não muda sozinho. O menu inicia em GIFs e segue a sequência
 | SELECT | salva o GIF atual como favorito, somente no modo GIFs |
 
 No modo dia da semana, `SELECT` não faz nada. `UP` e `DOWN` ajustam o brilho
-global em passos de 10, entre 5 e 255, e cada alteração é salva imediatamente
-na EEPROM emulada do ESP8266. O valor padrão é 50. O `SELECT` grava
+global em passos de 5%, entre 5% e 100%, e cada alteração é salva imediatamente
+na EEPROM emulada do ESP8266. O valor padrão é 50%. O terminal informa o
+percentual atual após cada alteração. O `SELECT` grava
 o caminho do GIF na EEPROM emulada do ESP8266; ao reiniciar, esse arquivo volta a
 ser exibido automaticamente, desde que continue presente no cartão SD.
 

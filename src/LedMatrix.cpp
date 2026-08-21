@@ -2,24 +2,31 @@
 
 #include "DisplayConfig.h"
 
+namespace {
+uint8_t toFastLedBrightness(uint8_t brightnessPercent) {
+  return static_cast<uint8_t>(
+      (static_cast<uint16_t>(brightnessPercent) * 255U + 50U) / 100U);
+}
+}
+
 LedMatrix::LedMatrix(uint8_t width, uint8_t height)
     : width(width), height(height) {}
 
-void LedMatrix::begin(uint8_t brightness) {
+void LedMatrix::begin(uint8_t brightnessPercent) {
   FastLED.addLeds<WS2812, DisplayConfig::DataPin, GRB>(pixels, width * height);
-  currentBrightness = brightness;
-  FastLED.setBrightness(currentBrightness);
+  currentBrightnessPercent = brightnessPercent;
+  FastLED.setBrightness(toFastLedBrightness(currentBrightnessPercent));
   clear();
 }
 
-void LedMatrix::setBrightness(uint8_t brightness) {
-  currentBrightness = brightness;
-  FastLED.setBrightness(currentBrightness);
+void LedMatrix::setBrightness(uint8_t brightnessPercent) {
+  currentBrightnessPercent = brightnessPercent;
+  FastLED.setBrightness(toFastLedBrightness(currentBrightnessPercent));
   FastLED.show();
 }
 
-uint8_t LedMatrix::brightness() const {
-  return currentBrightness;
+uint8_t LedMatrix::brightnessPercent() const {
+  return currentBrightnessPercent;
 }
 
 void LedMatrix::clear() {
@@ -63,9 +70,10 @@ void LedMatrix::drawGifPixel(
   setPixel(x + 1, y + 1, CRGB(red, green, blue));
 }
 
-void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
-  const uint8_t normalBrightness = currentBrightness;
-  FastLED.setBrightness(brightness);
+void LedMatrix::testColorsBars(
+    unsigned long durationMs, uint8_t brightnessPercent) {
+  const uint8_t normalBrightnessPercent = currentBrightnessPercent;
+  FastLED.setBrightness(toFastLedBrightness(brightnessPercent));
   const CRGB lineOne[] = {
       CRGB(104, 104, 104), CRGB(180, 180, 180), CRGB(180, 180, 16),
       CRGB(16, 180, 180), CRGB(16, 180, 16), CRGB(180, 16, 180),
@@ -102,5 +110,5 @@ void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
   show();
   delay(durationMs);
   clear();
-  FastLED.setBrightness(normalBrightness);
+  FastLED.setBrightness(toFastLedBrightness(normalBrightnessPercent));
 }

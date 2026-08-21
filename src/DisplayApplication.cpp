@@ -43,8 +43,11 @@ void DisplayApplication::begin() {
   Serial.println("Display application starting");
   buttons.begin();
   brightnessStore.begin();
-  const uint8_t configuredBrightness = DisplayConfig::Brightness;
-  Serial.printf("Brilho inicial forcado: %u/255\n", configuredBrightness);
+  const uint8_t configuredBrightnessPercent = static_cast<uint8_t>(constrain(
+      static_cast<int>(brightnessStore.load(DisplayConfig::BrightnessPercent)),
+      static_cast<int>(DisplayConfig::MinimumBrightnessPercent),
+      static_cast<int>(DisplayConfig::MaximumBrightnessPercent)));
+  Serial.printf("Brilho carregado: %u%%\n", configuredBrightnessPercent);
 
   const bool rtcAvailable = rtc.begin(DisplayConfig::RtcSdaPin, DisplayConfig::RtcSclPin);
   if (!rtcAvailable) {
@@ -77,8 +80,8 @@ void DisplayApplication::begin() {
         rtcTime.second());
   }
 
-  matrix.begin(configuredBrightness);
-  matrix.testColorsBars(5000, configuredBrightness);
+  matrix.begin(configuredBrightnessPercent);
+  matrix.testColorsBars(5000, configuredBrightnessPercent);
 
   if (rtcAvailable) {
     clock.renderRtcOk();
@@ -234,24 +237,25 @@ void DisplayApplication::adjustBrightness(int direction) {
   }
 
   const int requestedBrightness =
-      static_cast<int>(matrix.brightness()) + direction * DisplayConfig::BrightnessStep;
+      static_cast<int>(matrix.brightnessPercent()) +
+      direction * DisplayConfig::BrightnessStepPercent;
   const uint8_t nextBrightness = static_cast<uint8_t>(constrain(
       requestedBrightness,
-      static_cast<int>(DisplayConfig::MinimumBrightness),
-      static_cast<int>(DisplayConfig::MaximumBrightness)));
+      static_cast<int>(DisplayConfig::MinimumBrightnessPercent),
+      static_cast<int>(DisplayConfig::MaximumBrightnessPercent)));
 
-  if (nextBrightness == matrix.brightness()) {
+  if (nextBrightness == matrix.brightnessPercent()) {
     return;
   }
 
   matrix.setBrightness(nextBrightness);
   lastClockWeekday = -1;
   if (!brightnessStore.save(nextBrightness)) {
-    Serial.printf("[BRIGHTNESS] %u aplicado, mas nao foi salvo\n", nextBrightness);
+    Serial.printf("[BRIGHTNESS] %u%% aplicado, mas nao foi salvo\n", nextBrightness);
     return;
   }
 
-  Serial.printf("[BRIGHTNESS] %u/255 salvo\n", nextBrightness);
+  Serial.printf("[BRIGHTNESS] %u%% salvo\n", nextBrightness);
 }
 
 void DisplayApplication::beginDateEditing() {
