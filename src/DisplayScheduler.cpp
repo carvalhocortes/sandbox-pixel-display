@@ -1,38 +1,28 @@
 #include "DisplayScheduler.h"
 
 void DisplayScheduler::begin(unsigned long now) {
+  (void)now;
   currentMode = DisplayMode::Image;
-  modeStartedAt = now;
 }
 
-void DisplayScheduler::forceImage(unsigned long now) {
+void DisplayScheduler::forceImage() {
   currentMode = DisplayMode::Image;
-  modeStartedAt = now;
 }
 
-bool DisplayScheduler::update(unsigned long now, unsigned long gifCycles) {
-  DisplayMode nextMode = currentMode;
-
-  if (currentMode == DisplayMode::Image &&
-      ((now - modeStartedAt) > imageDurationMs || gifCycles > maxGifCycles)) {
-    nextMode = DisplayMode::Time;
-  } else if (currentMode == DisplayMode::Time &&
-             (now - modeStartedAt) > timeDurationMs) {
-    nextMode = DisplayMode::Date;
-  } else if (currentMode == DisplayMode::Date &&
-             (now - modeStartedAt) > dateDurationMs) {
-    nextMode = DisplayMode::Weekday;
-  } else if (currentMode == DisplayMode::Weekday &&
-             (now - modeStartedAt) > weekdayDurationMs) {
-    nextMode = DisplayMode::Image;
-  }
-
-  if (nextMode == currentMode) {
+bool DisplayScheduler::move(int direction) {
+  if (direction == 0) {
     return false;
   }
 
-  currentMode = nextMode;
-  modeStartedAt = now;
+  int modeIndex = static_cast<int>(currentMode);
+  modeIndex += direction > 0 ? 1 : -1;
+  if (modeIndex < 0) {
+    modeIndex = 3;
+  } else if (modeIndex > 3) {
+    modeIndex = 0;
+  }
+
+  currentMode = static_cast<DisplayMode>(modeIndex);
   return true;
 }
 
