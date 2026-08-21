@@ -7,8 +7,19 @@ LedMatrix::LedMatrix(uint8_t width, uint8_t height)
 
 void LedMatrix::begin(uint8_t brightness) {
   FastLED.addLeds<WS2812, DisplayConfig::DataPin, GRB>(pixels, width * height);
-  FastLED.setBrightness(brightness);
+  currentBrightness = brightness;
+  FastLED.setBrightness(currentBrightness);
   clear();
+}
+
+void LedMatrix::setBrightness(uint8_t brightness) {
+  currentBrightness = brightness;
+  FastLED.setBrightness(currentBrightness);
+  FastLED.show();
+}
+
+uint8_t LedMatrix::brightness() const {
+  return currentBrightness;
 }
 
 void LedMatrix::clear() {
@@ -53,6 +64,7 @@ void LedMatrix::drawGifPixel(
 }
 
 void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
+  const uint8_t normalBrightness = currentBrightness;
   FastLED.setBrightness(brightness);
   const CRGB lineOne[] = {
       CRGB(104, 104, 104), CRGB(180, 180, 180), CRGB(180, 180, 16),
@@ -90,4 +102,5 @@ void LedMatrix::testColorsBars(unsigned long durationMs, uint8_t brightness) {
   show();
   delay(durationMs);
   clear();
+  FastLED.setBrightness(normalBrightness);
 }
