@@ -246,6 +246,7 @@ void DisplayApplication::adjustBrightness(int direction) {
   }
 
   matrix.setBrightness(nextBrightness);
+  lastClockWeekday = -1;
   if (!brightnessStore.save(nextBrightness)) {
     Serial.printf("[BRIGHTNESS] %u aplicado, mas nao foi salvo\n", nextBrightness);
     return;
