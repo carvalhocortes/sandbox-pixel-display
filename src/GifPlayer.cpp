@@ -1,11 +1,21 @@
 #include "GifPlayer.h"
 
+#include <EEPROM.h>
 #include <SD.h>
+#include <cstring>
 
 #include "FilenameFunctions.h"
 #include "LedMatrix.h"
 
 GifPlayer* GifPlayer::activePlayer = nullptr;
+
+namespace {
+constexpr int EepromSize = 512;
+constexpr int FavoriteMagicAddress = 0;
+constexpr int FavoritePathAddress = sizeof(uint32_t);
+constexpr size_t FavoritePathCapacity = 256;
+constexpr uint32_t FavoriteMagic = 0x47494631;
+}
 
 GifPlayer::GifPlayer(LedMatrix& matrix, const char* directory, int chipSelectPin)
     : matrix(matrix), directory(directory), chipSelectPin(chipSelectPin) {
@@ -33,23 +43,57 @@ bool GifPlayer::begin() {
     return false;
   }
 
-  randomSeed(analogRead(A0) ^ micros());
+  EEPROM.begin(EepromSize);
+  eepromReady = true;
+  currentFileIndex = 0;
+  if (!loadSavedImage()) {
+    Serial.println("Nenhum GIF favorito salvo; iniciando pelo primeiro arquivo");
+  }
 
   return true;
 }
 
-int GifPlayer::chooseNextFile() {
-  if (fileCount <= 1) {
-    return 0;
+bool GifPlayer::loadSavedImage() {
+  char savedPath[FavoritePathCapacity] = {};
+  if (!readSavedPath(savedPath)) {
+    return false;
   }
 
-  int nextIndex;
-  do {
-    nextIndex = random(fileCount);
-  } while (nextIndex == lastFileIndex);
+  for (int index = 0; index < fileCount; ++index) {
+    char path[FavoritePathCapacity] = {};
+    getGIFFilenameByIndex(directory, index, path);
+    if (strcmp(path, savedPath) == 0) {
+      currentFileIndex = index;
+      Serial.print("GIF favorito restaurado: ");
+      Serial.println(path);
+      return true;
+    }
+  }
 
-  lastFileIndex = nextIndex;
-  return nextIndex;
+  Serial.print("GIF favorito nao encontrado no cartao: ");
+  Serial.println(savedPath);
+  return false;
+}
+
+bool GifPlayer::readSavedPath(char* path) const {
+  if (!eepromReady) {
+    return false;
+  }
+
+  uint32_t magic = 0;
+  EEPROM.get(FavoriteMagicAddress, magic);
+  if (magic != FavoriteMagic) {
+    return false;
+  }
+
+  for (size_t index = 0; index < FavoritePathCapacity; ++index) {
+    path[index] = static_cast<char>(EEPROM.read(FavoritePathAddress + index));
+    if (path[index] == '\0') {
+      return index > 0;
+    }
+  }
+
+  return false;
 }
 
 void GifPlayer::update(unsigned long now) {
@@ -59,7 +103,11 @@ void GifPlayer::update(unsigned long now) {
 
   if (playNextGif) {
     playNextGif = false;
-    if (openGifFilenameByIndex(directory, chooseNextFile()) >= 0) {
+    if (currentFileIndex < 0 || currentFileIndex >= fileCount) {
+      currentFileIndex = 0;
+    }
+
+    if (openGifFilenameByIndex(directory, currentFileIndex) >= 0) {
       if (decoder.startDecoding() < 0) {
         playNextGif = true;
         return;
@@ -76,12 +124,58 @@ void GifPlayer::update(unsigned long now) {
   }
 }
 
-void GifPlayer::requestNextImage() {
+void GifPlayer::requestCurrentImage() {
   playNextGif = true;
+  lastFrameDisplayedAt = 0;
+  currentFrameDelay = 0;
 }
 
-unsigned long GifPlayer::cycleNumber() {
-  return decoder.getCycleNumber();
+bool GifPlayer::changeImage(int direction) {
+  if (fileCount <= 0 || direction == 0) {
+    return false;
+  }
+
+  if (currentFileIndex < 0 || currentFileIndex >= fileCount) {
+    currentFileIndex = 0;
+  }
+
+  currentFileIndex += direction > 0 ? 1 : -1;
+  if (currentFileIndex < 0) {
+    currentFileIndex = fileCount - 1;
+  } else if (currentFileIndex >= fileCount) {
+    currentFileIndex = 0;
+  }
+
+  requestCurrentImage();
+  return true;
+}
+
+bool GifPlayer::saveCurrentImage() {
+  if (!eepromReady || currentFileIndex < 0 || currentFileIndex >= fileCount) {
+    Serial.println("Nao foi possivel salvar o GIF favorito");
+    return false;
+  }
+
+  char path[FavoritePathCapacity] = {};
+  getGIFFilenameByIndex(directory, currentFileIndex, path);
+  if (path[0] == '\0') {
+    Serial.println("Nao foi possivel encontrar o GIF atual");
+    return false;
+  }
+
+  EEPROM.put(FavoriteMagicAddress, FavoriteMagic);
+  for (size_t index = 0; index < FavoritePathCapacity; ++index) {
+    EEPROM.write(FavoritePathAddress + index, path[index]);
+  }
+
+  if (!EEPROM.commit()) {
+    Serial.println("Falha ao salvar o GIF favorito");
+    return false;
+  }
+
+  Serial.print("GIF favorito salvo: ");
+  Serial.println(path);
+  return true;
 }
 
 void GifPlayer::clearCallback() {
