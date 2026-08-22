@@ -131,6 +131,19 @@ void DisplayApplication::update() {
   }
 
   const DateTime current = isEditing() ? editingValue : rtc.now();
+  if (scheduler.mode() == DisplayMode::FibonacciClock) {
+    const int hour = current.hour() % 12 == 0 ? 12 : current.hour() % 12;
+    const int minuteBlock = current.minute() / 5;
+    if (hour == lastClockTop && minuteBlock == lastClockBottom) {
+      return;
+    }
+
+    clock.renderFibonacciClock(current);
+    lastClockTop = hour;
+    lastClockBottom = minuteBlock;
+    return;
+  }
+
   if (scheduler.mode() == DisplayMode::Weekday) {
     const int weekday = current.dayOfTheWeek();
     if (weekday == lastClockWeekday) {

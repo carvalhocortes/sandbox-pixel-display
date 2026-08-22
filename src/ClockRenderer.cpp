@@ -22,6 +22,24 @@ const char* const weekdays[] = {"DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"}
 const CRGB White(255, 255, 255);
 const CRGB EditGreen(128, 255, 128);
 const CRGB Red(255, 0, 0);
+const CRGB Green(0, 255, 0);
+const CRGB Orange(255, 128, 0);
+const CRGB Dim(8, 8, 8);
+
+struct FibonacciSquare {
+  uint8_t value;
+  int x;
+  int y;
+  int width;
+  int height;
+};
+
+const FibonacciSquare FibonacciSquares[] = {
+    {5, 3, 4, 8, 8},
+    {3, 11, 4, 4, 4},
+    {2, 11, 8, 2, 4},
+    {1, 13, 8, 2, 2},
+    {1, 13, 10, 2, 2}};
 }
 
 ClockRenderer::ClockRenderer(LedMatrix& matrix, DisplayLogger& logger)
@@ -130,6 +148,15 @@ void ClockRenderer::drawChar(char value, int x, int y, const CRGB& color) {
   }
 }
 
+void ClockRenderer::drawFibonacciSquare(
+    int x, int y, int width, int height, const CRGB& color) {
+  for (int squareY = y; squareY < y + height; squareY++) {
+    for (int squareX = x; squareX < x + width; squareX++) {
+      matrix.drawPixel(squareX, squareY, color);
+    }
+  }
+}
+
 void ClockRenderer::renderRtcError() {
   logger.rtcError();
   matrix.clear();
@@ -195,6 +222,41 @@ void ClockRenderer::renderTimeEditing(
 
 void ClockRenderer::renderTimeFlash(const DateTime& value, bool visible) {
   renderTimeContent(value, Red, ClockEditPart::None, visible);
+}
+
+void ClockRenderer::renderFibonacciClock(const DateTime& value) {
+  const uint8_t hour = value.hour() % 12 == 0 ? 12 : value.hour() % 12;
+  const uint8_t minuteBlock = value.minute() / 5;
+  bool hourSquares[5] = {};
+  bool minuteSquares[5] = {};
+  uint8_t remainingHour = hour;
+  uint8_t remainingMinute = minuteBlock;
+
+  for (uint8_t index = 0; index < 5; index++) {
+    const uint8_t squareValue = FibonacciSquares[index].value;
+    if (squareValue <= remainingHour) {
+      hourSquares[index] = true;
+      remainingHour -= squareValue;
+    }
+    if (squareValue <= remainingMinute) {
+      minuteSquares[index] = true;
+      remainingMinute -= squareValue;
+    }
+  }
+
+  matrix.clear();
+  for (uint8_t index = 0; index < 5; index++) {
+    const bool isHour = hourSquares[index];
+    const bool isMinute = minuteSquares[index];
+    const CRGB& color = isHour && isMinute ? Orange :
+                        isHour             ? Red :
+                        isMinute           ? Green : Dim;
+    const FibonacciSquare& square = FibonacciSquares[index];
+    drawFibonacciSquare(
+        square.x, square.y, square.width, square.height, color);
+  }
+  matrix.show();
+  logger.fibonacciClock(value, hour, minuteBlock);
 }
 
 void ClockRenderer::renderTimeContent(

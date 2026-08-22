@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-enum class DisplayMode { Image, Time, Date, Weekday };
+enum class DisplayMode { Image, Time, FibonacciClock, Date, Weekday };
 
 class DisplayScheduler {
 public:

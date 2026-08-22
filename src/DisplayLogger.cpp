@@ -11,6 +11,18 @@ void DisplayLogger::time(const DateTime &value) const
   Serial.printf("[TIME] %02d:%02d:%02d\n", value.hour(), value.minute(), value.second());
 }
 
+void DisplayLogger::fibonacciClock(
+    const DateTime &value, uint8_t hour, uint8_t minuteBlock) const
+{
+  Serial.printf(
+      "[FIBONACCI] %02d:%02d:%02d (%u:%02u)\n",
+      value.hour(),
+      value.minute(),
+      value.second(),
+      static_cast<unsigned int>(hour),
+      static_cast<unsigned int>(minuteBlock * 5));
+}
+
 void DisplayLogger::date(const DateTime &value) const
 {
   Serial.printf("[DATE] %02d/%02d/%04d\n", value.day(), value.month(), value.year());

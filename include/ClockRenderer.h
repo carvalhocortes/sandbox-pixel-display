@@ -12,6 +12,7 @@ class ClockRenderer {
 public:
   ClockRenderer(LedMatrix& matrix, DisplayLogger& logger);
   void renderTime(const DateTime& value);
+  void renderFibonacciClock(const DateTime& value);
   void renderDate(const DateTime& value);
   void renderWeekday(const DateTime& value);
   void renderTimeEditing(const DateTime& value, ClockEditPart part, bool activeVisible);
@@ -42,6 +43,8 @@ private:
       const CRGB& color,
       ClockEditPart part,
       bool activeVisible);
+  void drawFibonacciSquare(
+      int x, int y, int width, int height, const CRGB& color);
 
   LedMatrix& matrix;
   DisplayLogger& logger;

@@ -17,8 +17,8 @@ bool DisplayScheduler::move(int direction) {
   int modeIndex = static_cast<int>(currentMode);
   modeIndex += direction > 0 ? 1 : -1;
   if (modeIndex < 0) {
-    modeIndex = 3;
-  } else if (modeIndex > 3) {
+    modeIndex = 4;
+  } else if (modeIndex > 4) {
     modeIndex = 0;
   }
 

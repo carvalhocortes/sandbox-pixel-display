@@ -1,21 +1,22 @@
 # Pixel Display
 
-Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel mostra GIFs armazenados em um cartão SD, a hora, a data e o dia da semana lidos de um RTC, com navegação manual pelos botões e atualizações OTA via Wi-Fi.
+Firmware PlatformIO para um painel WS2812 de 16×16 conectado a um ESP8266 NodeMCU. O painel mostra GIFs armazenados em um cartão SD, a hora, o relógio de Fibonacci, a data e o dia da semana lidos de um RTC, com navegação manual pelos botões e atualizações OTA via Wi-Fi.
 
 ## Funcionalidades
 
 - Reprodução dos GIFs em `/gifs`, com troca manual pelos botões e repetição do GIF atual.
 - Hora em duas linhas com dígitos 3×5: hora e minutos.
+- Relógio de Fibonacci com quadrados de valores `5`, `3`, `2`, `1` e `1`.
 - Data em duas linhas: `DD  MM` e `AAAA`.
 - Dia da semana em formato abreviado: `SEG`, `TER`, `QUA`, `QUI`, `SEX`, `SAB` ou `DOM`.
-- Menu manual entre GIFs, hora, data e dia da semana.
+- Menu manual entre GIFs, hora, Fibonacci, data e dia da semana.
 - GIF favorito salvo na memória persistente do ESP8266 e restaurado após reiniciar.
 - Brilho global ajustável no modo dia da semana e restaurado após reiniciar.
 - Indicadores de inicialização `RTC OK` e `RTC NOK` no painel.
 - Sincronização do RTC com a data/hora usadas na compilação.
 - Ajuste do RTC por comando no monitor serial.
 - Leitura diagnóstica dos cinco botões analógicos pelo monitor serial.
-- Mensagens no monitor serial para a imagem, hora, data e dia da semana exibidos.
+- Mensagens no monitor serial para a imagem, hora, Fibonacci, data e dia da semana exibidos.
 - Atualização OTA pelo PlatformIO depois da primeira instalação via USB.
 
 ## Hardware e ligações
@@ -89,10 +90,10 @@ pull-ups de 5 V diretamente aos GPIOs do ESP8266.
 ```text
 src/main.cpp              Bootstrap mínimo do Arduino
 src/DisplayApplication.cpp Composição e coordenação da aplicação
-src/DisplayScheduler.cpp   Alternância entre imagem, hora, data e dia da semana
+src/DisplayScheduler.cpp   Alternância entre imagem, hora, Fibonacci, data e dia da semana
 src/GifPlayer.cpp          Decodificação GIF e seleção manual/persistente
 src/LedMatrix.cpp          Buffer WS2812 e mapeamento serpentino
-src/ClockRenderer.cpp      Renderização dos dígitos e letras 3×5
+src/ClockRenderer.cpp      Renderização dos dígitos, letras 3×5 e Fibonacci
 src/RtcClock.cpp           Acesso e sincronização do RTC
 src/AnalogButtonReader.cpp Leitura diagnóstica do módulo de botões em A0
 src/BrightnessStore.cpp    Persistência do brilho global
@@ -167,7 +168,7 @@ os intervalos posteriormente.
 ### Menu pelos botões
 
 O modo mostrado não muda sozinho. O menu inicia em GIFs e segue a sequência
-`GIFs → hora → data → dia da semana → GIFs`:
+`GIFs → hora → Fibonacci → data → dia da semana → GIFs`:
 
 | Botão | Ação |
 |---|---|
@@ -193,6 +194,18 @@ navegam para outro modo. O relógio normal usa branco; somente o campo em ediç�
 fica verde claro e pisca duas vezes por segundo. Quando a gravação é concluída,
 todo o conteúdo pisca duas vezes em vermelho antes de voltar ao branco. Botões
 pressionados durante essa confirmação visual são ignorados.
+
+No relógio de Fibonacci, os cinco quadrados representam os valores `5`, `3`,
+`2`, `1` e `1`. A soma dos quadrados vermelhos indica as horas, a soma dos
+quadrados verdes indica os minutos divididos por cinco e os quadrados laranja
+participam das duas somas. A hora usa o formato de 12 horas (`00` é `12`) e os
+minutos são truncados para o bloco de cinco abaixo; por exemplo, `08:37`
+aparece como `8:35`. Os quadrados não selecionados ficam em intensidade baixa
+para manter o desenho visível e os cinco quadrados ficam encostados, sem linhas
+pretas entre os valores. O layout segue a composição clássica, com o `5` à
+esquerda, o `3` acima à direita, o `2` abaixo dele e os dois `1` ao lado do `2`.
+As dimensões são `8×8`, `4×4`, `2×4` e `2×2`, respectivamente. `UP`, `DOWN` e
+`SELECT` não fazem nada nesse modo.
 
 ## Configuração Wi-Fi local
 
